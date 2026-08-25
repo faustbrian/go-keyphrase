@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	keyphrase "github.com/faustbrian/golib/pkg/keyphrase"
-	"github.com/faustbrian/golib/pkg/keyphrase/keyphrasetest"
-	"github.com/faustbrian/golib/pkg/keyphrase/password"
+	keyphrase "github.com/faustbrian/go-keyphrase"
+	"github.com/faustbrian/go-keyphrase/keyphrasetest"
+	"github.com/faustbrian/go-keyphrase/password"
 )
 
 func FuzzAnalyzeAlphabet(f *testing.F) {

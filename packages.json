@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "repository": "github.com/faustbrian/go-keyphrase",
+  "packages": [
+    {
+      "module_directory": ".",
+      "directory": ".",
+      "name": "keyphrase",
+      "import_path": "github.com/faustbrian/go-keyphrase",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "bip39",
+      "name": "bip39",
+      "import_path": "github.com/faustbrian/go-keyphrase/bip39",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "keyphrasetest",
+      "name": "keyphrasetest",
+      "import_path": "github.com/faustbrian/go-keyphrase/keyphrasetest",
+      "kind": "test support",
+      "production": false,
+      "executable": true,
+      "coverage_required": false,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "passphrase",
+      "name": "passphrase",
+      "import_path": "github.com/faustbrian/go-keyphrase/passphrase",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "password",
+      "name": "password",
+      "import_path": "github.com/faustbrian/go-keyphrase/password",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "wordlist",
+      "name": "wordlist",
+      "import_path": "github.com/faustbrian/go-keyphrase/wordlist",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "wordlist/eff",
+      "name": "eff",
+      "import_path": "github.com/faustbrian/go-keyphrase/wordlist/eff",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    }
+  ]
+}

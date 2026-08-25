@@ -1,4 +1,4 @@
-module github.com/faustbrian/golib/pkg/keyphrase
+module github.com/faustbrian/go-keyphrase
 
 go 1.26.6
 

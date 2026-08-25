@@ -7,10 +7,10 @@ import (
 	"math"
 	"testing"
 
-	keyphrase "github.com/faustbrian/golib/pkg/keyphrase"
-	"github.com/faustbrian/golib/pkg/keyphrase/passphrase"
-	"github.com/faustbrian/golib/pkg/keyphrase/password"
-	"github.com/faustbrian/golib/pkg/keyphrase/wordlist"
+	keyphrase "github.com/faustbrian/go-keyphrase"
+	"github.com/faustbrian/go-keyphrase/passphrase"
+	"github.com/faustbrian/go-keyphrase/password"
+	"github.com/faustbrian/go-keyphrase/wordlist"
 )
 
 type fixedSource struct {

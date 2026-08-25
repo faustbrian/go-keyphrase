@@ -7,8 +7,8 @@ import (
 	"math"
 	"testing"
 
-	keyphrase "github.com/faustbrian/golib/pkg/keyphrase"
-	"github.com/faustbrian/golib/pkg/keyphrase/keyphrasetest"
+	keyphrase "github.com/faustbrian/go-keyphrase"
+	"github.com/faustbrian/go-keyphrase/keyphrasetest"
 )
 
 func TestSourceIsDeterministicFiniteAndCallerIsolated(t *testing.T) {

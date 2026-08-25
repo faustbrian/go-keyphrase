@@ -5,6 +5,12 @@ Versioning after its first stable release.
 
 ## Unreleased
 
+## 1.0.0 - 2026-08-25
+
+### Changed
+
+- Publish the module from its standalone `github.com/faustbrian/go-keyphrase` identity while preserving its documented API and behavior.
+
 ### Documentation
 
 - Replace obsolete standalone-repository links and workflow claims with

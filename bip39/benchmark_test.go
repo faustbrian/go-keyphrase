@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/faustbrian/golib/pkg/keyphrase/bip39"
+	"github.com/faustbrian/go-keyphrase/bip39"
 )
 
 func BenchmarkFromEntropy(b *testing.B) {

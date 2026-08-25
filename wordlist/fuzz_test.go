@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/faustbrian/golib/pkg/keyphrase/wordlist"
+	"github.com/faustbrian/go-keyphrase/wordlist"
 )
 
 func FuzzValidation(f *testing.F) {

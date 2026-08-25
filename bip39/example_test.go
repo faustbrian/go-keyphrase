@@ -3,7 +3,7 @@ package bip39_test
 import (
 	"fmt"
 
-	"github.com/faustbrian/golib/pkg/keyphrase/bip39"
+	"github.com/faustbrian/go-keyphrase/bip39"
 )
 
 func ExampleFromEntropy() {

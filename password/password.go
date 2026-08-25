@@ -11,7 +11,7 @@ import (
 	"slices"
 	"unicode/utf8"
 
-	keyphrase "github.com/faustbrian/golib/pkg/keyphrase"
+	keyphrase "github.com/faustbrian/go-keyphrase"
 	"golang.org/x/text/unicode/norm"
 )
 

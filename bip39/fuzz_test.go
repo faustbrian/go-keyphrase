@@ -3,7 +3,7 @@ package bip39_test
 import (
 	"testing"
 
-	"github.com/faustbrian/golib/pkg/keyphrase/bip39"
+	"github.com/faustbrian/go-keyphrase/bip39"
 )
 
 func FuzzMnemonicParsing(f *testing.F) {

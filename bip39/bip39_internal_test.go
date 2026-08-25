@@ -9,8 +9,8 @@ import (
 	"testing/fstest"
 	"time"
 
-	keyphrase "github.com/faustbrian/golib/pkg/keyphrase"
-	"github.com/faustbrian/golib/pkg/keyphrase/wordlist"
+	keyphrase "github.com/faustbrian/go-keyphrase"
+	"github.com/faustbrian/go-keyphrase/wordlist"
 	"golang.org/x/text/unicode/norm"
 )
 

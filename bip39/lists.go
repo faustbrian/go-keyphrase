@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/faustbrian/golib/pkg/keyphrase/wordlist"
+	"github.com/faustbrian/go-keyphrase/wordlist"
 )
 
 const bip39Revision = "8c369ac8e60629ac6c032ffe21bb5ec5b35213d7"

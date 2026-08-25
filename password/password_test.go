@@ -6,8 +6,8 @@ import (
 	"math"
 	"testing"
 
-	keyphrase "github.com/faustbrian/golib/pkg/keyphrase"
-	"github.com/faustbrian/golib/pkg/keyphrase/password"
+	keyphrase "github.com/faustbrian/go-keyphrase"
+	"github.com/faustbrian/go-keyphrase/password"
 )
 
 type repeatingSource struct {

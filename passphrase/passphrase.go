@@ -13,9 +13,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	keyphrase "github.com/faustbrian/golib/pkg/keyphrase"
-	"github.com/faustbrian/golib/pkg/keyphrase/password"
-	"github.com/faustbrian/golib/pkg/keyphrase/wordlist"
+	keyphrase "github.com/faustbrian/go-keyphrase"
+	"github.com/faustbrian/go-keyphrase/password"
+	"github.com/faustbrian/go-keyphrase/wordlist"
 )
 
 const (

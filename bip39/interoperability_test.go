@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/faustbrian/golib/pkg/keyphrase/bip39"
+	"github.com/faustbrian/go-keyphrase/bip39"
 	reference "github.com/tyler-smith/go-bip39"
 	"golang.org/x/text/unicode/norm"
 )

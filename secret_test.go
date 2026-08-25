@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	keyphrase "github.com/faustbrian/golib/pkg/keyphrase"
+	keyphrase "github.com/faustbrian/go-keyphrase"
 )
 
 func TestSecretFormattingIsAlwaysRedacted(t *testing.T) {

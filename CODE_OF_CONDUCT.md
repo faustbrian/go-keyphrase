@@ -1,9 +1,9 @@
-# Code of conduct
+# Code Of Conduct
 
-Be respectful, specific, and constructive. Harassment, discrimination,
-threats, doxxing, and disclosure of another person's secret material are not
-acceptable. Maintainers may edit or remove contributions and restrict
-participation to protect the project and its community.
+Participants must communicate professionally, assume good intent while
+evaluating technical claims from evidence, and avoid harassment, discrimination,
+personal attacks, threats, or disclosure of private information.
 
-Report conduct concerns privately to the maintainers. Report vulnerabilities
-through the process in `SECURITY.md`.
+Maintainers may edit, reject, or remove contributions and participation that
+violate these expectations. Report conduct concerns privately to the repository
+owner. Reports will be reviewed confidentially and addressed proportionally.

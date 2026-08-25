@@ -8,10 +8,10 @@ import (
 	"strings"
 	"testing"
 
-	keyphrase "github.com/faustbrian/golib/pkg/keyphrase"
-	"github.com/faustbrian/golib/pkg/keyphrase/bip39"
-	"github.com/faustbrian/golib/pkg/keyphrase/passphrase"
-	"github.com/faustbrian/golib/pkg/keyphrase/password"
+	keyphrase "github.com/faustbrian/go-keyphrase"
+	"github.com/faustbrian/go-keyphrase/bip39"
+	"github.com/faustbrian/go-keyphrase/passphrase"
+	"github.com/faustbrian/go-keyphrase/password"
 )
 
 type diagnosticCause struct {
