@@ -17,7 +17,7 @@ distribution, and randomness is injectable through a context-aware interface.
 
 This module does not hash passwords, implement wallets, derive BIP-32/BIP-44
 keys, store secrets, or distribute credentials. Use
-[`password`](../password) for password hashing
+[`password`](https://github.com/faustbrian/go-password) for password hashing
 and a purpose-built secret manager for storage and distribution.
 
 ## Install
