@@ -27,4 +27,4 @@ component; replace only the BIP-39 seam.
 
 Adopt behind an application-owned interface, inject deterministic sources only
 in tests, observe error codes rather than values, establish output-lifetime
-rules, run `make check`, and obtain security review before a stable release.
+rules, run `make check`, and obtain security review before a future release.

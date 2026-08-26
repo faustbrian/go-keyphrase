@@ -6,16 +6,14 @@ embedded-list integrity, examples, dependency verification, vulnerability
 scanning, license review, and workflow validation.
 
 `make release-check` adds fuzz smoke tests, mutation testing, and benchmark
-execution. The repository-root `keyphrase` workflow runs that target from
-the module directory for changes, merge queues, dispatches, and a weekly
-schedule. The module-local workflows preserve the same gates if the module is
-split into its own repository. CI-only test logic is avoided.
+execution. The single repository CI workflow runs the corresponding cataloged
+gates for pull requests, `main`, scheduled checks, and manual dispatches.
+CI-only test logic is avoided.
 
 `make stable-release-check` first verifies the independent-review record, then
-runs `make release-check`. Tag builds use this stricter target. It intentionally
-fails while [the review record](security-review.md) is pending; ordinary CI can
-continue proving the implementation without weakening the stable-release
-blocker.
+runs `make release-check`. It intentionally fails while
+[the review record](security-review.md) is pending. The existing `v1.0.0` tag
+must not be interpreted as evidence that this review occurred.
 
 Official vectors cover every official language and entropy size. The
 interoperability tests compare every English entropy size, parsing, checksum

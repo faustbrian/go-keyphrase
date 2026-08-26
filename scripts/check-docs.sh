@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-for file in README.md SECURITY.md THIRD_PARTY_NOTICES.md docs/api.md docs/threat-model.md docs/entropy.md docs/bip39.md docs/wordlists.md docs/errors-and-limits.md docs/secret-lifetime.md docs/policies.md docs/adoption.md docs/testing.md docs/faq.md docs/security-review.md; do
+for file in README.md SECURITY.md THIRD_PARTY_NOTICES.md docs/README.md docs/api.md docs/threat-model.md docs/entropy.md docs/bip39.md docs/wordlists.md docs/errors-and-limits.md docs/secret-lifetime.md docs/policies.md docs/adoption.md docs/testing.md docs/faq.md docs/security-review.md; do
     test -s "$file"
 done
 
