@@ -28,7 +28,6 @@ normalization, PBKDF2 parameters, list provenance, error disclosure, resource
 bounds, cancellation, concurrency, tests, and release gates.
 
 The implementing agent or author cannot satisfy this independent-review gate.
-`make stable-release-check` fails before the ordinary release gates while any
-field above remains pending. An independent reviewer must replace every field
-with the reviewed evidence; the reviewed commit must be a full 40-character Git
-object ID.
+No future release may proceed while any field above remains pending. An
+independent reviewer must replace every field with the reviewed evidence; the
+reviewed commit must be a full 40-character Git object ID.

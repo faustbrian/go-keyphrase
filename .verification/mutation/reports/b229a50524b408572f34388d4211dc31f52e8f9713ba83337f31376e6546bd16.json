@@ -1,0 +1,39 @@
+{
+    "go_module": "github.com/faustbrian/golib/pkg/keyphrase",
+    "files": [
+      {
+        "file_name": "eff.go",
+        "mutations": [
+          {
+            "type": "ARITHMETIC_BASE",
+            "status": "KILLED",
+            "line": 31,
+            "column": 29
+          },
+          {
+            "type": "ARITHMETIC_BASE",
+            "status": "KILLED",
+            "line": 44,
+            "column": 29
+          },
+          {
+            "type": "ARITHMETIC_BASE",
+            "status": "KILLED",
+            "line": 57,
+            "column": 29
+          }
+        ]
+      }
+    ],
+    "test_efficacy": 100,
+    "mutations_coverage": 100,
+    "mutants_total": 3,
+    "mutants_killed": 3,
+    "mutants_lived": 0,
+    "mutants_not_viable": 0,
+    "mutants_not_covered": 0,
+    "elapsed_time": 0.599091875,
+    "mutator_statistics": {
+      "arithmetic_base": 3
+    }
+  }

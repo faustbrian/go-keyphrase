@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "repository": "github.com/faustbrian/go-keyphrase",
+  "module": ".",
+  "package": "bip39",
+  "gate": "mutation",
+  "input_digest": "sha256:d15c6dcae2f17048af888c2365030b2315bf4afa53b3caa246a90ef03be55e13",
+  "verifier_digest": "sha256:9a9499ff68a8dfd49a0be7995590297a8ee563a1aa226bfd8b9361dc53058108",
+  "result": "passed",
+  "report_digest": "sha256:11dda57b03523791be1a439acaf194f817e98a7c14cf21b00807b2ca85fe00eb",
+  "environment": {
+    "CGO_ENABLED": "1",
+    "GOARCH": "arm64",
+    "GOOS": "darwin",
+    "GOVERSION": "go1.27.0",
+    "evidence_origin": "approved_legacy_checkpoint"
+  },
+  "completed_at": "2026-08-28T15:03:33.108408Z"
+}

@@ -1,0 +1,77 @@
+schema_version: 1
+tool_version: v1.0.3
+tool_checksums_sha256: a53eacea92f126ba3a871ab9a4cc0986512d1b7df03ba8cec8e7866d0db87112
+manifest:
+  modules: modules.json
+  packages: packages.json
+evidence:
+  root: ".verification"
+mutation:
+  root: ".verification/mutation"
+  imports:
+  - module: "."
+    archive: ".verification/mutation/bootstrap/root.zip"
+    ledger: ".verification/mutation/migration-ledger.json"
+api:
+  baselines:
+  - module: "."
+    mode: go-doc
+    path: api/baseline.txt
+    packages:
+    - "."
+    - ./bip39
+    - ./keyphrasetest
+    - ./passphrase
+    - ./password
+    - ./wordlist
+    - ./wordlist/eff
+operations:
+- module: "."
+  gate: test
+  steps:
+  - type: go-test
+    packages: ["./wordlist/eff"]
+    run: '^TestEmbeddedListsMatchPinnedMetadata$'
+    timeout: 20m
+  - type: go-test
+    packages: ["./bip39"]
+    run: '^TestPinnedOfficialListsLoad$'
+    timeout: 20m
+- module: "."
+  gate: fuzz
+  steps:
+  - type: go-test
+    packages: ["./password"]
+    fuzz: '^FuzzAnalyzeAlphabet$'
+    budget: 10s
+    timeout: 2m
+  - type: go-test
+    packages: ["./wordlist"]
+    fuzz: '^FuzzValidation$'
+    budget: 10s
+    timeout: 2m
+  - type: go-test
+    packages: ["./bip39"]
+    fuzz: '^FuzzMnemonicParsing$'
+    budget: 10s
+    timeout: 2m
+  - type: go-test
+    packages: ["./passphrase"]
+    fuzz: '^FuzzParsing$'
+    budget: 10s
+    timeout: 2m
+- module: "."
+  gate: docs
+  steps:
+  - type: go-test
+    packages: ["./..."]
+    run: '^Example'
+    timeout: 20m
+- module: "."
+  gate: benchmark
+  steps:
+  - type: go-test
+    packages: ["./..."]
+    benchmark: "."
+    budget: 1x
+    timeout: 20m

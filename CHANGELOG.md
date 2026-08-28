@@ -7,6 +7,8 @@ Versioning after its first stable release.
 
 ### Changed
 
+- Adopt the versioned shared `golib` repository contract for local and hosted
+  verification while retaining package-owned API and mutation evidence.
 - Align isolated dependency checks with standalone package module paths.
 
 ### Documentation

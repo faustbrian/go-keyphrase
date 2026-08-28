@@ -1,0 +1,575 @@
+{
+    "go_module": "github.com/faustbrian/golib/pkg/keyphrase",
+    "files": [
+      {
+        "file_name": "random.go",
+        "mutations": [
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 13,
+            "column": 25
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 25,
+            "column": 27
+          },
+          {
+            "type": "CONDITIONALS_BOUNDARY",
+            "status": "KILLED",
+            "line": 44,
+            "column": 18
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 45,
+            "column": 11
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 44,
+            "column": 18
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 56,
+            "column": 15
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 59,
+            "column": 14
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 55,
+            "column": 12
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 62,
+            "column": 16
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 61,
+            "column": 13
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 74,
+            "column": 9
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 64,
+            "column": 35
+          },
+          {
+            "type": "INVERT_LOGICAL",
+            "status": "KILLED",
+            "line": 79,
+            "column": 14
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 79,
+            "column": 7
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 80,
+            "column": 13
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 79,
+            "column": 26
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 83,
+            "column": 13
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 82,
+            "column": 11
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 86,
+            "column": 13
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 85,
+            "column": 27
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 88,
+            "column": 11
+          },
+          {
+            "type": "INVERT_NEGATIVES",
+            "status": "KILLED",
+            "line": 92,
+            "column": 31
+          },
+          {
+            "type": "ARITHMETIC_BASE",
+            "status": "KILLED",
+            "line": 92,
+            "column": 31
+          },
+          {
+            "type": "ARITHMETIC_BASE",
+            "status": "KILLED",
+            "line": 93,
+            "column": 30
+          },
+          {
+            "type": "ARITHMETIC_BASE",
+            "status": "KILLED",
+            "line": 93,
+            "column": 25
+          },
+          {
+            "type": "INVERT_NEGATIVES",
+            "status": "KILLED",
+            "line": 94,
+            "column": 30
+          },
+          {
+            "type": "ARITHMETIC_BASE",
+            "status": "KILLED",
+            "line": 94,
+            "column": 30
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 94,
+            "column": 19
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 95,
+            "column": 14
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 96,
+            "column": 10
+          },
+          {
+            "type": "INVERT_NEGATIVES",
+            "status": "KILLED",
+            "line": 101,
+            "column": 37
+          },
+          {
+            "type": "ARITHMETIC_BASE",
+            "status": "KILLED",
+            "line": 101,
+            "column": 37
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 105,
+            "column": 51
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 101,
+            "column": 56
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 106,
+            "column": 16
+          },
+          {
+            "type": "CONDITIONALS_BOUNDARY",
+            "status": "KILLED",
+            "line": 106,
+            "column": 16
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 111,
+            "column": 12
+          },
+          {
+            "type": "INVERT_LOGICAL",
+            "status": "KILLED",
+            "line": 117,
+            "column": 14
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 117,
+            "column": 7
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 118,
+            "column": 15
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 117,
+            "column": 26
+          },
+          {
+            "type": "INVERT_LOGICAL",
+            "status": "KILLED",
+            "line": 120,
+            "column": 18
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 120,
+            "column": 11
+          },
+          {
+            "type": "CONDITIONALS_BOUNDARY",
+            "status": "KILLED",
+            "line": 120,
+            "column": 34
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 120,
+            "column": 34
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 121,
+            "column": 15
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 124,
+            "column": 15
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 123,
+            "column": 27
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 126,
+            "column": 30
+          },
+          {
+            "type": "CONDITIONALS_BOUNDARY",
+            "status": "KILLED",
+            "line": 131,
+            "column": 14
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 132,
+            "column": 15
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 131,
+            "column": 14
+          },
+          {
+            "type": "ARITHMETIC_BASE",
+            "status": "KILLED",
+            "line": 134,
+            "column": 30
+          },
+          {
+            "type": "ARITHMETIC_BASE",
+            "status": "KILLED",
+            "line": 134,
+            "column": 25
+          },
+          {
+            "type": "ARITHMETIC_BASE",
+            "status": "KILLED",
+            "line": 135,
+            "column": 28
+          },
+          {
+            "type": "INVERT_NEGATIVES",
+            "status": "KILLED",
+            "line": 135,
+            "column": 28
+          },
+          {
+            "type": "ARITHMETIC_BASE",
+            "status": "KILLED",
+            "line": 135,
+            "column": 25
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 140,
+            "column": 42
+          },
+          {
+            "type": "REMOVE_SELF_ASSIGNMENTS",
+            "status": "KILLED",
+            "line": 144,
+            "column": 13
+          },
+          {
+            "type": "INVERT_BWASSIGN",
+            "status": "KILLED",
+            "line": 144,
+            "column": 13
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 144,
+            "column": 26
+          },
+          {
+            "type": "CONDITIONALS_BOUNDARY",
+            "status": "KILLED",
+            "line": 147,
+            "column": 27
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 154,
+            "column": 14
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 147,
+            "column": 27
+          },
+          {
+            "type": "INVERT_LOGICAL",
+            "status": "KILLED",
+            "line": 160,
+            "column": 14
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 160,
+            "column": 7
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 162,
+            "column": 10
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 160,
+            "column": 26
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 164,
+            "column": 22
+          },
+          {
+            "type": "CONDITIONALS_BOUNDARY",
+            "status": "KILLED",
+            "line": 164,
+            "column": 22
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 166,
+            "column": 10
+          },
+          {
+            "type": "ARITHMETIC_BASE",
+            "status": "KILLED",
+            "line": 164,
+            "column": 37
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 168,
+            "column": 46
+          },
+          {
+            "type": "CONDITIONALS_BOUNDARY",
+            "status": "KILLED",
+            "line": 178,
+            "column": 13
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 178,
+            "column": 13
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 180,
+            "column": 11
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 179,
+            "column": 28
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 184,
+            "column": 10
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 186,
+            "column": 12
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 185,
+            "column": 35
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 188,
+            "column": 11
+          },
+          {
+            "type": "CONDITIONALS_BOUNDARY",
+            "status": "KILLED",
+            "line": 190,
+            "column": 12
+          },
+          {
+            "type": "INVERT_LOGICAL",
+            "status": "KILLED",
+            "line": 190,
+            "column": 16
+          },
+          {
+            "type": "CONDITIONALS_BOUNDARY",
+            "status": "KILLED",
+            "line": 190,
+            "column": 25
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 190,
+            "column": 12
+          },
+          {
+            "type": "CONDITIONALS_NEGATION",
+            "status": "KILLED",
+            "line": 190,
+            "column": 25
+          },
+          {
+            "type": "INVERT_NEGATIVES",
+            "status": "KILLED",
+            "line": 190,
+            "column": 43
+          },
+          {
+            "type": "INVERT_BITWISE",
+            "status": "KILLED",
+            "line": 191,
+            "column": 11
+          },
+          {
+            "type": "ARITHMETIC_BASE",
+            "status": "KILLED",
+            "line": 190,
+            "column": 43
+          },
+          {
+            "type": "INVERT_ASSIGNMENTS",
+            "status": "KILLED",
+            "line": 193,
+            "column": 10
+          },
+          {
+            "type": "REMOVE_SELF_ASSIGNMENTS",
+            "status": "KILLED",
+            "line": 193,
+            "column": 10
+          }
+        ]
+      }
+    ],
+    "test_efficacy": 100,
+    "mutations_coverage": 100,
+    "mutants_total": 91,
+    "mutants_killed": 91,
+    "mutants_lived": 0,
+    "mutants_not_viable": 0,
+    "mutants_not_covered": 0,
+    "elapsed_time": 31.066931875,
+    "mutator_statistics": {
+      "arithmetic_base": 11,
+      "conditionals_negation": 32,
+      "conditionals_boundary": 9,
+      "invert_assignments": 1,
+      "invert_bitwise": 25,
+      "invert_bitwise_assignments": 1,
+      "invert_logical": 5,
+      "invert_negatives": 5,
+      "remove_self_assignments": 2
+    }
+  }

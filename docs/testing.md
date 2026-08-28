@@ -1,19 +1,16 @@
 # Testing and release gates
 
-`make check` runs formatting, documentation validation, `go vet`, tests,
-meaningful 100% statement coverage, race tests, strict linting, static analysis,
-embedded-list integrity, examples, dependency verification, vulnerability
-scanning, license review, and workflow validation.
+`golib check --all` runs formatting, documentation validation, `go vet`,
+tests, meaningful 100% statement coverage, race tests, strict linting, static
+analysis, embedded-list integrity, examples, dependency verification,
+vulnerability scanning, license review, fuzzing, mutation testing, API
+compatibility, and benchmarks.
 
-`make release-check` adds fuzz smoke tests, mutation testing, and benchmark
-execution. The single repository CI workflow runs the corresponding cataloged
-gates for pull requests, `main`, scheduled checks, and manual dispatches.
-CI-only test logic is avoided.
-
-`make stable-release-check` first verifies the independent-review record, then
-runs `make release-check`. It intentionally fails while
-[the review record](security-review.md) is pending. The existing `v1.0.0` tag
-must not be interpreted as evidence that this review occurred.
+The pinned shared CI workflow runs the same cataloged contract for pull
+requests, `main`, scheduled checks, and manual release rehearsals. A future
+release remains prohibited while
+[the independent review record](security-review.md) is pending. The existing
+`v1.0.0` tag must not be interpreted as evidence that this review occurred.
 
 Official vectors cover every official language and entropy size. The
 interoperability tests compare every English entropy size, parsing, checksum

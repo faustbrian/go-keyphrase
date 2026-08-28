@@ -224,8 +224,7 @@ func internalList(t *testing.T, words []string) *wordlist.List {
 }
 
 func errorCode(err error) ErrorCode {
-	var phraseError *Error
-	if errors.As(err, &phraseError) {
+	if phraseError, ok := errors.AsType[*Error](err); ok {
 		return phraseError.Code
 	}
 	return ""

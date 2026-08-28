@@ -254,8 +254,7 @@ func TestSourceErrorAndCryptoSourceBranches(t *testing.T) {
 }
 
 func errorCode(err error) ErrorCode {
-	var generationError *Error
-	if errors.As(err, &generationError) {
+	if generationError, ok := errors.AsType[*Error](err); ok {
 		return generationError.Code
 	}
 	return ""
