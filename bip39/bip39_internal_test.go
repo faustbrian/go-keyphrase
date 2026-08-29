@@ -244,8 +244,7 @@ func TestSeedCancellationReturnsNoPartialSeed(t *testing.T) {
 }
 
 func errorCode(err error) ErrorCode {
-	var mnemonicError *Error
-	if errors.As(err, &mnemonicError) {
+	if mnemonicError, ok := errors.AsType[*Error](err); ok {
 		return mnemonicError.Code
 	}
 	return ""

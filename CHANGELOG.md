@@ -5,6 +5,17 @@ Versioning after its first stable release.
 
 ## Unreleased
 
+### Changed
+
+- Adopt the versioned shared `golib` repository contract for local and hosted
+  verification while retaining package-owned API and mutation evidence.
+- Align isolated dependency checks with standalone package module paths.
+
+### Documentation
+
+- Add a repository-local documentation index, remove completed implementation
+  plans, and clarify the pending independent cryptographic review.
+
 ## 1.0.0 - 2026-08-25
 
 ### Changed
@@ -35,10 +46,10 @@ Versioning after its first stable release.
 
 ### Documentation
 
-- Replace obsolete standalone-repository links and workflow claims with
-  monorepo-canonical targets and current release guidance.
+- Replace obsolete repository links and workflow claims with standalone
+  package targets and current release guidance.
 
-- Link the package README to the repository-wide Golib documentation portal.
+- Add package discovery documentation.
 
 - Delegate local mutation checks to the canonical exact-100 repository runner
   and remove the superseded Gremlins installation and configuration.

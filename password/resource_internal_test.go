@@ -122,8 +122,7 @@ func TestAnalyzeAcceptsExactResourceBoundaries(t *testing.T) {
 }
 
 func policyErrorCode(err error) ErrorCode {
-	var policyError *Error
-	if errors.As(err, &policyError) {
+	if policyError, ok := errors.AsType[*Error](err); ok {
 		return policyError.Code
 	}
 	return ""

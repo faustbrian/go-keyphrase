@@ -111,8 +111,7 @@ func metadataForInternal(words []string) Metadata {
 }
 
 func errorCode(err error) ErrorCode {
-	var listError *Error
-	if errors.As(err, &listError) {
+	if listError, ok := errors.AsType[*Error](err); ok {
 		return listError.Code
 	}
 	return ""

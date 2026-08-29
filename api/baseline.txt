@@ -1,0 +1,638 @@
+package keyphrase // import "github.com/faustbrian/go-keyphrase"
+
+Package keyphrase provides shared cryptographic randomness and entropy contracts
+for password, passphrase, and BIP-39 mnemonic generation.
+
+It does not hash passwords, manage wallets, derive wallet keys, store secrets,
+or distribute secret material.
+
+TYPES
+
+type Error struct {
+	Code  ErrorCode
+	Cause error
+}
+    Error is a typed, secret-safe generation error.
+
+    Error deliberately omits the wrapped error text. Callers that need the
+    underlying cause may inspect it with errors.Is or errors.As, but should not
+    log arbitrary source errors without reviewing their disclosure behavior.
+
+func (e *Error) Error() string
+
+func (e *Error) Format(state fmt.State, _ rune)
+    Format prevents wrapped source diagnostics from appearing in debug output.
+
+func (e *Error) MarshalText() ([]byte, error)
+    MarshalText omits wrapped source diagnostics from encoded output.
+
+func (e *Error) Unwrap() error
+
+type ErrorCode string
+    ErrorCode identifies a generation failure without exposing secret material.
+
+const (
+	// CodeInvalidBound reports a nonpositive selection bound.
+	CodeInvalidBound ErrorCode = "invalid_bound"
+	// CodeInvalidSource reports a nil randomness source.
+	CodeInvalidSource ErrorCode = "invalid_source"
+	// CodeInvalidOption reports an invalid selector option.
+	CodeInvalidOption ErrorCode = "invalid_option"
+	// CodeOversized reports a request above a resource limit.
+	CodeOversized ErrorCode = "oversized"
+	// CodeSource reports a randomness-source failure.
+	CodeSource ErrorCode = "source_failure"
+	// CodeShortRead reports a source that made invalid progress.
+	CodeShortRead ErrorCode = "short_read"
+	// CodeAttemptsExceeded reports too many rejected samples.
+	CodeAttemptsExceeded ErrorCode = "attempts_exceeded"
+	// CodeCanceled reports context cancellation.
+	CodeCanceled ErrorCode = "canceled"
+)
+type Option func(*Selector) error
+    Option configures a Selector.
+
+func WithMaxAttempts(maxAttempts int) Option
+    WithMaxAttempts bounds rejected samples from a faulty or hostile source.
+
+type Secret []byte
+    Secret is a caller-owned byte slice whose fmt representation is always
+    redacted. Convert it explicitly to []byte or string only at a reviewed
+    integration boundary.
+
+func (s Secret) Clear()
+    Clear overwrites the current backing array as a best-effort measure. Go and
+    the operating system may retain compiler, runtime, string, or page copies.
+
+func (Secret) Format(state fmt.State, _ rune)
+    Format prevents accidental disclosure through logging and debugging verbs.
+
+func (Secret) LogValue() slog.Value
+    LogValue prevents disclosure through the standard structured logger.
+
+func (Secret) MarshalText() ([]byte, error)
+    MarshalText prevents disclosure through standard text and JSON encoders.
+
+type Selector struct {
+	// Has unexported fields.
+}
+    Selector performs bounded rejection sampling from a Source.
+
+func DefaultSelector() *Selector
+    DefaultSelector returns a selector backed by crypto/rand.
+
+func NewSelector(source Source, options ...Option) (*Selector, error)
+    NewSelector constructs a selector using source.
+
+func (s *Selector) BigInt(ctx context.Context, upper *big.Int) (*big.Int, error)
+    BigInt returns a uniformly distributed arbitrary-precision value in [0,
+    upper). The returned integer never aliases upper.
+
+func (s *Selector) Fill(ctx context.Context, destination []byte) error
+    Fill writes cryptographic random bytes into destination. On failure it
+    clears destination so callers never observe a partial secret.
+
+func (s *Selector) Index(ctx context.Context, upper uint64) (uint64, error)
+    Index returns a uniformly distributed value in [0, upper).
+
+type Source interface {
+	ReadContext(ctx context.Context, destination []byte) (int, error)
+}
+    Source supplies cryptographic random bytes and participates in cancellation.
+    Implementations must fill as much of destination as possible and must return
+    promptly after ctx is canceled.
+
+package bip39 // import "github.com/faustbrian/go-keyphrase/bip39"
+
+Package bip39 implements BIP-39 mnemonic encoding, validation, language
+detection, and seed derivation. It does not implement wallets, addresses,
+private-key custody, BIP-32, or BIP-44.
+
+FUNCTIONS
+
+func List(language Language) (*wordlist.List, error)
+    List returns an immutable, validated official list.
+
+func Seed(ctx context.Context, mnemonic Mnemonic, passphrase string) (keyphrase.Secret, error)
+    Seed derives the 64-byte BIP-39 seed using NFKD and PBKDF2-HMAC-SHA512 with
+    2,048 iterations. The returned buffer is caller-owned.
+
+
+TYPES
+
+type Error struct {
+	Code       ErrorCode
+	Cause      error
+	Candidates []Language
+}
+    Error never contains mnemonic, entropy, passphrase, or seed material.
+
+func (e *Error) Error() string
+
+func (e *Error) Format(state fmt.State, _ rune)
+    Format prevents wrapped diagnostics from appearing in debug output.
+
+func (e *Error) MarshalText() ([]byte, error)
+    MarshalText omits wrapped diagnostics from encoded output.
+
+func (e *Error) Unwrap() error
+
+type ErrorCode string
+    ErrorCode identifies a mnemonic operation failure.
+
+const (
+	// CodeInvalidEntropy reports an unsupported entropy size.
+	CodeInvalidEntropy ErrorCode = "invalid_entropy"
+	// CodeUnsupportedLanguage reports a language outside the official set.
+	CodeUnsupportedLanguage ErrorCode = "unsupported_language"
+	// CodeListIntegrity reports a pinned-list validation failure.
+	CodeListIntegrity ErrorCode = "list_integrity"
+	// CodeInvalidLength reports an unsupported mnemonic word count.
+	CodeInvalidLength ErrorCode = "invalid_length"
+	// CodeUnknownWord reports vocabulary absent from the selected list.
+	CodeUnknownWord ErrorCode = "unknown_word"
+	// CodeAmbiguousLanguage reports vocabulary shared by multiple lists.
+	CodeAmbiguousLanguage ErrorCode = "ambiguous_language"
+	// CodeChecksum reports mnemonic checksum failure.
+	CodeChecksum ErrorCode = "checksum"
+	// CodeRandomness reports entropy-source failure.
+	CodeRandomness ErrorCode = "randomness"
+	// CodeCanceled reports context cancellation.
+	CodeCanceled ErrorCode = "canceled"
+	// CodeInvalidGenerator reports a nil selector.
+	CodeInvalidGenerator ErrorCode = "invalid_generator"
+	// CodeOversized reports input above resource limits.
+	CodeOversized ErrorCode = "oversized"
+)
+type Language string
+    Language identifies an official BIP-39 word list.
+
+const (
+	// ChineseSimplified selects the official Simplified Chinese list.
+	ChineseSimplified Language = "chinese_simplified"
+	// ChineseTraditional selects the official Traditional Chinese list.
+	ChineseTraditional Language = "chinese_traditional"
+	// Czech selects the official Czech list.
+	Czech Language = "czech"
+	// English selects the official English list.
+	English Language = "english"
+	// French selects the official French list.
+	French Language = "french"
+	// Italian selects the official Italian list.
+	Italian Language = "italian"
+	// Japanese selects the official Japanese list.
+	Japanese Language = "japanese"
+	// Korean selects the official Korean list.
+	Korean Language = "korean"
+	// Portuguese selects the official Portuguese list.
+	Portuguese Language = "portuguese"
+	// Spanish selects the official Spanish list.
+	Spanish Language = "spanish"
+)
+func Languages() []Language
+    Languages returns all official languages in stable lexical order.
+
+type Mnemonic struct {
+	// Has unexported fields.
+}
+    Mnemonic is an immutable validated BIP-39 mnemonic.
+
+func FromEntropy(entropy []byte, language Language) (Mnemonic, error)
+    FromEntropy creates a mnemonic from one of the official entropy sizes.
+
+func Generate(ctx context.Context, entropyBits int, language Language, selector *keyphrase.Selector) (Mnemonic, error)
+    Generate creates fresh entropy and its corresponding mnemonic.
+
+func Parse(phrase string) (Mnemonic, error)
+    Parse detects the official language and validates the checksum. Vocabulary
+    shared by multiple lists is reported as ambiguity instead of guessed.
+
+func ParseLanguage(phrase string, language Language) (Mnemonic, error)
+    ParseLanguage validates phrase against an explicitly selected language.
+
+func (m Mnemonic) Entropy() keyphrase.Secret
+    Entropy returns a caller-owned copy of the validated source entropy.
+
+func (Mnemonic) Format(state fmt.State, _ rune)
+    Format prevents mnemonic and entropy disclosure through formatting verbs.
+    Call String explicitly only at a reviewed integration boundary.
+
+func (m Mnemonic) Language() Language
+    Language returns the detected or selected official language.
+
+func (Mnemonic) LogValue() slog.Value
+    LogValue prevents mnemonic disclosure through log/slog.
+
+func (Mnemonic) MarshalText() ([]byte, error)
+    MarshalText prevents mnemonic disclosure through standard encoders.
+
+func (m Mnemonic) String() string
+    String returns the canonical mnemonic sentence. Japanese uses ideographic
+    spaces as shown in the official vectors; seed derivation still applies NFKD.
+
+func (m Mnemonic) Words() []string
+    Words returns a copy of the mnemonic words.
+
+package keyphrasetest // import "github.com/faustbrian/go-keyphrase/keyphrasetest"
+
+Package keyphrasetest provides deterministic sources and statistical test
+helpers. Its distribution checks can detect obvious bias but do not certify a
+cryptographic random source.
+
+VARIABLES
+
+var ErrInvalidSample = errors.New("keyphrasetest: invalid statistical sample")
+    ErrInvalidSample reports an unusable statistical sample.
+
+
+FUNCTIONS
+
+func ChiSquared(counts []uint64) (float64, error)
+    ChiSquared returns Pearson's statistic against equal expected counts.
+
+
+TYPES
+
+type CounterSource struct {
+	// Has unexported fields.
+}
+    CounterSource emits every byte value cyclically. It is useful for testing
+    rejection-sampling boundaries, not for generating secrets.
+
+func NewCounterSource() *CounterSource
+    NewCounterSource creates a source beginning with byte zero.
+
+func (s *CounterSource) ReadContext(ctx context.Context, destination []byte) (int, error)
+    ReadContext implements keyphrase.Source.
+
+type Source struct {
+	// Has unexported fields.
+}
+    Source is a finite, concurrency-safe deterministic byte source.
+
+func NewSource(data []byte) *Source
+    NewSource copies data into a deterministic source.
+
+func (s *Source) ReadContext(ctx context.Context, destination []byte) (int, error)
+    ReadContext implements keyphrase.Source.
+
+package passphrase // import "github.com/faustbrian/go-keyphrase/passphrase"
+
+Package passphrase generates and validates uniformly selected word-list
+passphrases with optional independently generated password affixes.
+
+TYPES
+
+type Affix struct {
+	Separator string
+	Policy    password.Policy
+}
+    Affix is an independently generated password separated from the word phrase
+    by Separator.
+
+type Casing uint8
+    Casing controls a deterministic display transform.
+
+const (
+	// Preserve keeps list words unchanged.
+	Preserve Casing = iota
+	// Lower applies Unicode lowercase mapping.
+	Lower
+	// Upper applies Unicode uppercase mapping.
+	Upper
+)
+type Distribution struct {
+	Outcomes *big.Int
+	Bits     float64
+}
+    Distribution describes the exact number of possible outputs.
+
+func Analyze(policy Policy) (Distribution, error)
+    Analyze validates policy and returns its exact output count and entropy.
+
+type Error struct {
+	Code  ErrorCode
+	Cause error
+}
+    Error omits phrase contents and generated secret material.
+
+func (e *Error) Error() string
+
+func (e *Error) Format(state fmt.State, _ rune)
+    Format prevents wrapped diagnostics from appearing in debug output.
+
+func (e *Error) MarshalText() ([]byte, error)
+    MarshalText omits wrapped diagnostics from encoded output.
+
+func (e *Error) Unwrap() error
+
+type ErrorCode string
+    ErrorCode identifies a passphrase policy, parsing, or generation failure.
+
+const (
+	// CodeInvalidPolicy reports malformed passphrase configuration.
+	CodeInvalidPolicy ErrorCode = "invalid_policy"
+	// CodeCollision reports a casing transform that collapses list entries.
+	CodeCollision ErrorCode = "collision"
+	// CodeAmbiguousSeparator reports a separator that prevents exact parsing.
+	CodeAmbiguousSeparator ErrorCode = "ambiguous_separator"
+	// CodeInsufficientEntropy reports an unmet entropy floor.
+	CodeInsufficientEntropy ErrorCode = "insufficient_entropy"
+	// CodeOversized reports a policy or input above resource limits.
+	CodeOversized ErrorCode = "oversized"
+	// CodeRandomness reports a failure while sampling words or affixes.
+	CodeRandomness ErrorCode = "randomness"
+	// CodeInvalidPhrase reports a phrase that does not satisfy its policy.
+	CodeInvalidPhrase ErrorCode = "invalid_phrase"
+	// CodeInvalidGenerator reports a nil generator dependency.
+	CodeInvalidGenerator ErrorCode = "invalid_generator"
+)
+type Generator struct {
+	// Has unexported fields.
+}
+    Generator generates passphrases from a shared unbiased selector.
+
+func DefaultGenerator() *Generator
+    DefaultGenerator returns a generator backed by crypto/rand.
+
+func NewGenerator(selector *keyphrase.Selector) (*Generator, error)
+    NewGenerator creates a passphrase generator.
+
+func (g *Generator) Generate(ctx context.Context, policy Policy) (keyphrase.Secret, error)
+    Generate returns a complete caller-owned UTF-8 buffer and never returns a
+    partial phrase on failure.
+
+type Parsed struct {
+	Prefix keyphrase.Secret
+	Words  []string
+	Suffix keyphrase.Secret
+}
+    Parsed contains caller-owned affix buffers and transformed list words.
+
+func Parse(encoded []byte, policy Policy) (Parsed, error)
+    Parse validates and separates a phrase without treating entropy as a
+    password-strength assertion.
+
+func (Parsed) Format(state fmt.State, _ rune)
+    Format prevents parsed phrase disclosure through formatting verbs.
+
+func (Parsed) LogValue() slog.Value
+    LogValue prevents parsed phrase disclosure through log/slog.
+
+func (Parsed) MarshalText() ([]byte, error)
+    MarshalText prevents parsed phrase disclosure through standard encoders.
+
+type Policy struct {
+	WordList           *wordlist.List
+	Words              int
+	Separator          string
+	Casing             Casing
+	Prefix             *Affix
+	Suffix             *Affix
+	MinimumEntropyBits float64
+}
+    Policy defines a passphrase distribution.
+
+package password // import "github.com/faustbrian/go-keyphrase/password"
+
+Package password generates uniformly distributed passwords under explicit
+character and required-class policies.
+
+FUNCTIONS
+
+func Validate(policy Policy, encoded []byte) error
+    Validate reports whether encoded is a complete UTF-8 password satisfying
+    policy. The returned error never includes encoded.
+
+
+TYPES
+
+type ByteClass struct {
+	Name  string
+	Bytes []byte
+}
+    ByteClass is a required set in a byte-alphabet policy.
+
+type BytePolicy struct {
+	Length             int
+	Alphabet           []byte
+	Required           []ByteClass
+	Excluded           []byte
+	MinimumEntropyBits float64
+}
+    BytePolicy defines a distribution over arbitrary byte values.
+
+type Class struct {
+	Name       string
+	Characters string
+}
+    Class is a required set of characters. Classes may overlap.
+
+type Distribution struct {
+	Outcomes *big.Int
+	Bits     float64
+}
+    Distribution describes the exact number of possible outputs and its base-2
+    logarithm. Outcomes is an owned value and may be modified by the caller.
+
+func Analyze(policy Policy) (Distribution, error)
+    Analyze validates policy and reports its exact constrained distribution.
+
+func AnalyzeBytes(policy BytePolicy) (Distribution, error)
+    AnalyzeBytes validates policy and reports its exact constrained
+    distribution.
+
+type Error struct {
+	Code  ErrorCode
+	Cause error
+}
+    Error deliberately excludes policy symbols and generated secret material.
+
+func (e *Error) Error() string
+
+func (e *Error) Format(state fmt.State, _ rune)
+    Format prevents wrapped diagnostics from appearing in debug output.
+
+func (e *Error) MarshalText() ([]byte, error)
+    MarshalText omits wrapped diagnostics from encoded output.
+
+func (e *Error) Unwrap() error
+
+type ErrorCode string
+    ErrorCode identifies a password policy or generation failure.
+
+const (
+	// CodeInvalidLength reports an unsupported password length.
+	CodeInvalidLength ErrorCode = "invalid_length"
+	// CodeInvalidAlphabet reports an empty or unusable alphabet.
+	CodeInvalidAlphabet ErrorCode = "invalid_alphabet"
+	// CodeDuplicateSymbol reports a repeated alphabet symbol.
+	CodeDuplicateSymbol ErrorCode = "duplicate_symbol"
+	// CodeNormalizationCollision reports canonically colliding symbols.
+	CodeNormalizationCollision ErrorCode = "normalization_collision"
+	// CodeInvalidClass reports malformed required-class configuration.
+	CodeInvalidClass ErrorCode = "invalid_class"
+	// CodeImpossible reports a policy with no valid outputs.
+	CodeImpossible ErrorCode = "impossible"
+	// CodeInsufficientEntropy reports an unmet entropy floor.
+	CodeInsufficientEntropy ErrorCode = "insufficient_entropy"
+	// CodeOversized reports a policy above resource limits.
+	CodeOversized ErrorCode = "oversized"
+	// CodeInvalidGenerator reports a nil generator dependency.
+	CodeInvalidGenerator ErrorCode = "invalid_generator"
+	// CodeBufferTooSmall reports insufficient caller-owned output space.
+	CodeBufferTooSmall ErrorCode = "buffer_too_small"
+	// CodeRandomness reports a failure while sampling.
+	CodeRandomness ErrorCode = "randomness"
+	// CodePolicyViolation reports a value that does not satisfy its policy.
+	CodePolicyViolation ErrorCode = "policy_violation"
+)
+type Generator struct {
+	// Has unexported fields.
+}
+    Generator is safe for concurrent use when its randomness source is safe for
+    concurrent use.
+
+func DefaultGenerator() *Generator
+    DefaultGenerator returns a generator backed by crypto/rand.
+
+func NewGenerator(selector *keyphrase.Selector) (*Generator, error)
+    NewGenerator creates a generator using selector.
+
+func (g *Generator) Generate(ctx context.Context, policy Policy) (keyphrase.Secret, error)
+    Generate returns a caller-owned UTF-8 buffer. No partial secret is returned
+    on failure. Callers may clear the buffer after use as a best-effort measure,
+    but Go cannot guarantee complete erasure of compiler and runtime copies.
+
+func (g *Generator) GenerateBytes(ctx context.Context, policy BytePolicy) (keyphrase.Secret, error)
+    GenerateBytes returns a complete caller-owned byte password.
+
+func (g *Generator) GenerateBytesInto(ctx context.Context, destination []byte, policy BytePolicy) (int, error)
+    GenerateBytesInto fills destination only when it can hold the complete
+    fixed-length output.
+
+func (g *Generator) GenerateInto(ctx context.Context, destination []byte, policy Policy) (int, error)
+    GenerateInto copies a complete generated password into destination.
+    It leaves destination unchanged when generation fails or the buffer is too
+    small.
+
+type Policy struct {
+	Length             int
+	Alphabet           string
+	Required           []Class
+	Excluded           string
+	MinimumEntropyBits float64
+}
+    Policy defines a Unicode password distribution. Length is measured in
+    Unicode code points, not encoded bytes.
+
+package wordlist // import "github.com/faustbrian/go-keyphrase/wordlist"
+
+Package wordlist validates and exposes immutable cryptographic word lists.
+
+FUNCTIONS
+
+func Checksum(words []string) string
+    Checksum returns the SHA-256 checksum of newline-terminated UTF-8 entries.
+
+
+TYPES
+
+type Error struct {
+	Code ErrorCode
+}
+    Error intentionally excludes words and other potentially sensitive input.
+
+func (e *Error) Error() string
+
+type ErrorCode string
+    ErrorCode identifies a word-list validation failure.
+
+const (
+	// CodeEmpty reports a list without entries.
+	CodeEmpty ErrorCode = "empty"
+	// CodeDuplicate reports an exactly repeated entry.
+	CodeDuplicate ErrorCode = "duplicate"
+	// CodeNormalizationCollision reports entries with equal NFKD forms.
+	CodeNormalizationCollision ErrorCode = "normalization_collision"
+	// CodeNormalizationRequired reports an entry that is not already NFKD.
+	CodeNormalizationRequired ErrorCode = "normalization_required"
+	// CodeMalformed reports an invalid UTF-8, empty, whitespace, or control entry.
+	CodeMalformed ErrorCode = "malformed"
+	// CodeMetadata reports missing or inconsistent provenance metadata.
+	CodeMetadata ErrorCode = "metadata"
+	// CodeChecksum reports an embedded-content checksum mismatch.
+	CodeChecksum ErrorCode = "checksum"
+	// CodePrefixCollision reports entries with a prohibited common prefix.
+	CodePrefixCollision ErrorCode = "prefix_collision"
+	// CodeOversized reports a list above resource limits.
+	CodeOversized ErrorCode = "oversized"
+	// CodeInvalidOption reports an invalid validation option.
+	CodeInvalidOption ErrorCode = "invalid_option"
+)
+type List struct {
+	// Has unexported fields.
+}
+    List is an immutable validated word list.
+
+func New(metadata Metadata, words []string, options ...Option) (*List, error)
+    New validates words and returns an immutable copy.
+
+func (l *List) Index(word string) (int, bool)
+    Index returns the exact entry index.
+
+func (l *List) Len() int
+    Len returns the number of entries.
+
+func (l *List) Metadata() Metadata
+    Metadata returns the pinned list metadata.
+
+func (l *List) Word(index int) (string, bool)
+    Word returns the entry at index.
+
+func (l *List) Words() []string
+    Words returns a copy of all entries.
+
+type Metadata struct {
+	ID            string
+	Language      string
+	Source        string
+	Version       string
+	License       string
+	ExpectedWords int
+	SHA256        string
+	SourceSHA256  string
+}
+    Metadata pins provenance and integrity for a list.
+
+type Option func(*config) error
+    Option configures list validation.
+
+func WithNFKD() Option
+    WithNFKD requires every entry to already use BIP-39-compatible NFKD.
+
+func WithUniquePrefix(length int) Option
+    WithUniquePrefix rejects entries sharing the first length Unicode code
+    points. It is useful for formats that permit abbreviated words.
+
+package eff // import "github.com/faustbrian/go-keyphrase/wordlist/eff"
+
+Package eff embeds the Electronic Frontier Foundation diceware word lists with
+pinned source and integrity metadata.
+
+FUNCTIONS
+
+func Large() (*wordlist.List, error)
+    Large returns the validated 7,776-word EFF long list.
+
+func ShortOne() (*wordlist.List, error)
+    ShortOne returns the validated first 1,296-word EFF short list.
+
+func ShortTwo() (*wordlist.List, error)
+    ShortTwo returns the validated second 1,296-word EFF short list.
+
+
+TYPES
+
+type List = wordlist.List
+    List is an alias for an immutable validated word list.

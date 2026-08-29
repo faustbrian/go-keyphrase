@@ -1,5 +1,0 @@
-#!/bin/sh
-set -eu
-
-go test -count=1 -run '^TestEmbeddedListsMatchPinnedMetadata$' ./wordlist/eff
-go test -count=1 -run '^TestPinnedOfficialListsLoad$' ./bip39

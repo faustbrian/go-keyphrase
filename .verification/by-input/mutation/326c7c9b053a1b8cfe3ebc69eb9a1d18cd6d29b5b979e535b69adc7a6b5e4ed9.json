@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "repository": "github.com/faustbrian/go-keyphrase",
+  "module": ".",
+  "package": "wordlist",
+  "gate": "mutation",
+  "input_digest": "sha256:326c7c9b053a1b8cfe3ebc69eb9a1d18cd6d29b5b979e535b69adc7a6b5e4ed9",
+  "verifier_digest": "sha256:9a9499ff68a8dfd49a0be7995590297a8ee563a1aa226bfd8b9361dc53058108",
+  "result": "passed",
+  "report_digest": "sha256:56f760cab0deba853f68401565a2dff5c7fd8749d8cc059b72595f4fb818eae6",
+  "environment": {
+    "CGO_ENABLED": "1",
+    "GOARCH": "arm64",
+    "GOOS": "darwin",
+    "GOVERSION": "go1.27.0",
+    "gremlins_binary_sha256": "sha256:6a2beddc477eb410f8a670b6c9049558563d3c4327498fe31604d31c773a959e"
+  },
+  "completed_at": "2026-08-28T15:17:45.404466Z"
+}
