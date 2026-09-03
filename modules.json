@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "repository": "github.com/faustbrian/go-keyphrase",
   "go_version": "1.26.6",
   "modules": [
@@ -101,6 +101,88 @@
       "family_label": "Domain Utilities",
       "family_description": "Domain-specific immutable values, algorithms, parsers, proofs, and calculations.",
       "family_order": 8,
+      "cohesion": {
+        "family": "domain-utilities",
+        "secondary_capabilities": [
+          "cryptography-and-secrets",
+          "protocols-and-schemas",
+          "testing-and-conformance"
+        ],
+        "responsibility": "Provide unbiased bounded password and passphrase generation, BIP-39 mnemonic interoperability, immutable word lists, and explicit secret-handling boundaries.",
+        "non_goals": [
+          "Hash passwords, store or distribute credentials, implement wallets, derive keys beyond BIP-39 seeds, or own application authentication policy.",
+          "Own caller-provided entropy sources or guarantee that injected randomness is cryptographically secure."
+        ],
+        "public_package_identifier": "keyphrase",
+        "primary_entry_packages": [
+          "github.com/faustbrian/go-keyphrase"
+        ],
+        "package_selection": {
+          "github.com/faustbrian/go-keyphrase": "Use for context-aware unbiased selection, caller-provided randomness, redacted secret bytes, and shared generation errors.",
+          "github.com/faustbrian/go-keyphrase/bip39": "Use for official BIP-39 mnemonic generation, parsing, language detection, validation, and seed derivation.",
+          "github.com/faustbrian/go-keyphrase/keyphrasetest": "Use only in tests for deterministic finite or counter-based randomness sources.",
+          "github.com/faustbrian/go-keyphrase/passphrase": "Use for bounded passphrase generation and parsing with explicit word-list, affix, casing, separator, and entropy policy.",
+          "github.com/faustbrian/go-keyphrase/password": "Use for bounded password generation and validation with exact Unicode or byte-alphabet distribution policy.",
+          "github.com/faustbrian/go-keyphrase/wordlist": "Use to construct and inspect immutable checksum-pinned word lists.",
+          "github.com/faustbrian/go-keyphrase/wordlist/eff": "Use for the embedded checksum-pinned EFF passphrase word lists."
+        },
+        "lifecycle_status": "active",
+        "maturity": "stable",
+        "construction_styles": [
+          "functional-options",
+          "plain-function",
+          "validated-value"
+        ],
+        "lifecycle_styles": [
+          "stateless"
+        ],
+        "ownership": {
+          "configuration": "caller",
+          "mutable_inputs": [
+            "borrow",
+            "copy"
+          ],
+          "runtime_resources": "caller",
+          "background_work": "none"
+        },
+        "optional_owned_dependencies": [],
+        "adapters": [],
+        "companions": [
+          "github.com/faustbrian/go-keyphrase/keyphrasetest"
+        ],
+        "supported_go": {
+          "minimum": "1.26.6",
+          "tested": [
+            "1.26.6"
+          ]
+        },
+        "supported_platforms": [
+          "portable-go"
+        ],
+        "supported_backends": [],
+        "supported_protocols": [
+          "bip-39"
+        ],
+        "documentation": {
+          "readme": "README.md",
+          "api": "docs/api.md",
+          "adoption": "docs/adoption.md",
+          "security": "SECURITY.md",
+          "compatibility": "COMPATIBILITY.md",
+          "performance": "docs/testing.md",
+          "examples": "example_test.go",
+          "faq": "docs/faq.md",
+          "changelog": "CHANGELOG.md",
+          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-keyphrase",
+          "ecosystem_index": "https://github.com/faustbrian/go-library-tools/blob/v1.3.0/docs/ecosystem/README.md"
+        },
+        "known_good_compatibility_sets": [],
+        "delivery": {
+          "implementation": "not-started",
+          "hardening": "not-started",
+          "release": "not-started"
+        }
+      },
       "version": "1.0.0",
       "tag_prefix": "v",
       "owned_dependencies": [],

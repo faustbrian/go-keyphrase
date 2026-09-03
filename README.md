@@ -99,6 +99,11 @@ complete erasure impossible. See [secret lifetime](docs/secret-lifetime.md).
 Use the [documentation index](docs/README.md) for adoption, API, security,
 format, and maintainer guidance.
 
+For ecosystem-wide construction, ownership, lifecycle, and composition
+guidance, see the versioned [Golib ecosystem
+index](https://github.com/faustbrian/go-library-tools/blob/v1.3.0/docs/ecosystem/README.md)
+and its [Domain utilities family](https://github.com/faustbrian/go-library-tools/blob/v1.3.0/docs/ecosystem/design-language.md#package-families-and-selection).
+
 ## License
 
 Project code and BIP-39 material are MIT licensed. EFF-derived list data is

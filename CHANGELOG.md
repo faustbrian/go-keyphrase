@@ -7,6 +7,11 @@ Versioning after its first stable release.
 
 ### Changed
 
+- Adopt the checksum-verified `go-library-tools` v1.3.0 CLI, schema-v2 cohesion
+  metadata, and repository-local cohesion gate without changing the public API
+  or runtime behavior.
+- Pin reusable CI to the immutable v1.3.0 cohesion-enforcement workflow and add
+  versioned Golib ecosystem navigation.
 - Adopt the versioned shared `golib` repository contract for local and hosted
   verification while retaining package-owned API and mutation evidence.
 - Align isolated dependency checks with standalone package module paths.
