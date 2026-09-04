@@ -7,6 +7,11 @@ Versioning after its first stable release.
 
 ### Changed
 
+- Adopt the checksum-verified `go-library-tools` v1.4.0 CLI and immutable W14
+  reusable workflow, and align local configuration, inventory, cohesion,
+  repository, online specification, workflow, and implementation gates without
+  changing the public API or runtime behavior.
+
 - Adopt the checksum-verified `go-library-tools` v1.3.0 CLI, schema-v2 cohesion
   metadata, and repository-local cohesion gate without changing the public API
   or runtime behavior.
@@ -17,6 +22,9 @@ Versioning after its first stable release.
 - Align isolated dependency checks with standalone package module paths.
 
 ### Documentation
+
+- Link ecosystem and Domain utilities family guidance to the immutable v1.4.0
+  documentation release.
 
 - Add a repository-local documentation index, remove completed implementation
   plans, and clarify the pending independent cryptographic review.
