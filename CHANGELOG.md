@@ -23,13 +23,17 @@ Versioning after its first stable release.
 
 ### Documentation
 
+- Document stable-v1 maturity and portable-Go boundaries, link the executable
+  example and complete support navigation, and correct the security reporting
+  route and post-v1 compatibility wording.
+
 - Link ecosystem and Domain utilities family guidance to the immutable v1.4.0
   documentation release.
 
 - Add a repository-local documentation index, remove completed implementation
   plans, and clarify the pending independent cryptographic review.
 
-## 1.0.0 - 2026-08-25
+## 1.0.0 - 2026-08-26
 
 ### Changed
 
