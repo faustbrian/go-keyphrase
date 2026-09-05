@@ -28,6 +28,15 @@ go get github.com/faustbrian/go-keyphrase
 
 The module requires Go 1.26.6 or later.
 
+## Status and portability
+
+The module is stable at v1 and follows the published
+[compatibility](COMPATIBILITY.md) and [deprecation](DEPRECATION.md) policies.
+Its public packages are portable Go: they have no platform-specific source
+files and require no operating-system service or external runtime backend.
+That portability statement does not imply validation on every `GOOS` and
+`GOARCH` combination.
+
 ## Password quick start
 
 ```go
@@ -81,6 +90,9 @@ checksum validation, ambiguity-aware language detection, and the specified
 PBKDF2-HMAC-SHA512 derivation are supported. BIP-39 seed derivation is included
 for interoperability; wallet behavior is intentionally absent.
 
+The checked-in [`Example_passphrase`](example_test.go) is the executable
+five-minute example. It is compiled and run by the Go example test gate.
+
 ## Security status
 
 The repository runs official vectors, independent interoperability fixtures,
@@ -96,8 +108,12 @@ complete erasure impossible. See [secret lifetime](docs/secret-lifetime.md).
 
 ## Documentation
 
-Use the [documentation index](docs/README.md) for adoption, API, security,
-format, and maintainer guidance.
+Use the [documentation index](docs/README.md) for the complete guide set.
+Start with [adoption](docs/adoption.md), the [API map](docs/api.md), and the
+[executable example](example_test.go). Operational and project navigation is
+available through [troubleshooting](docs/troubleshooting.md), the [FAQ](docs/faq.md),
+[support](SUPPORT.md), [security reporting](SECURITY.md), the
+[changelog](CHANGELOG.md), and the [license](LICENSE).
 
 For ecosystem-wide construction, ownership, lifecycle, and composition
 guidance, see the versioned [Golib ecosystem
