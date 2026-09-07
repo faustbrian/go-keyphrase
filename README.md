@@ -37,6 +37,27 @@ files and require no operating-system service or external runtime backend.
 That portability statement does not imply validation on every `GOOS` and
 `GOARCH` combination.
 
+## Lifecycle, ownership, and concurrency
+
+Selectors and generators are stateless after construction. The default
+variants use `crypto/rand` and may be shared across goroutines. A selector
+created with a custom randomness source may be shared only when that source
+supports concurrent `ReadContext` calls. Callers must not mutate policy slices,
+custom sources, or destination buffers while an operation is using them.
+
+Contexts, injected randomness sources, policy inputs, and destination buffers
+remain caller-owned. Validated word lists copy their input and expose immutable
+lookups; methods that return words, entropy, or generated secrets return
+caller-owned copies. Generation into a caller buffer occurs only after the
+complete secret has been produced successfully.
+
+The module starts no goroutines, performs no background work, and owns no
+files, sockets, services, or other runtime resources. Selectors, generators,
+lists, and generated values have no `Close` or `Shutdown` lifecycle. Callers
+control cancellation and the lifetime and best-effort clearing of returned
+secret bytes. See [performance and operational limits](docs/performance.md)
+for cost and cancellation caveats.
+
 ## Password quick start
 
 ```go

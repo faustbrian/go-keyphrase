@@ -23,6 +23,9 @@ Versioning after its first stable release.
 
 ### Documentation
 
+- Document lifecycle, ownership, concurrency, shutdown, and bounded performance
+  behavior, and point module metadata to the dedicated performance guide.
+
 - Document stable-v1 maturity and portable-Go boundaries, link the executable
   example and complete support navigation, and correct the security reporting
   route and post-v1 compatibility wording.

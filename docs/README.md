@@ -15,6 +15,7 @@ platform-specific source files or external runtime backend. See the
 - [API reference](api.md)
 - [FAQ](faq.md)
 - [Troubleshooting](troubleshooting.md)
+- [Performance and operational limits](performance.md)
 
 ## Security model
 
