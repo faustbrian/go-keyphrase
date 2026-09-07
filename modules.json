@@ -169,7 +169,7 @@
           "adoption": "docs/adoption.md",
           "security": "SECURITY.md",
           "compatibility": "COMPATIBILITY.md",
-          "performance": "docs/testing.md",
+          "performance": "docs/performance.md",
           "examples": "example_test.go",
           "faq": "docs/faq.md",
           "changelog": "CHANGELOG.md",
