@@ -5,10 +5,9 @@ package bip39
 
 import (
 	"context"
-	"crypto/hmac"
+	"crypto/pbkdf2"
 	"crypto/sha256"
 	"crypto/sha512"
-	"encoding/binary"
 	"fmt"
 	"io"
 	"log/slog"
@@ -46,6 +45,8 @@ const (
 	CodeChecksum ErrorCode = "checksum"
 	// CodeRandomness reports entropy-source failure.
 	CodeRandomness ErrorCode = "randomness"
+	// CodeDerivation reports failure of the maintained seed-derivation primitive.
+	CodeDerivation ErrorCode = "derivation"
 	// CodeCanceled reports context cancellation.
 	CodeCanceled ErrorCode = "canceled"
 	// CodeInvalidGenerator reports a nil selector.
@@ -242,7 +243,9 @@ func (m Mnemonic) Entropy() keyphrase.Secret {
 }
 
 // Seed derives the 64-byte BIP-39 seed using NFKD and PBKDF2-HMAC-SHA512 with
-// 2,048 iterations. The returned buffer is caller-owned.
+// 2,048 iterations. Context cancellation is checked before and after the fixed,
+// bounded derivation because the maintained primitive cannot be interrupted.
+// The returned buffer is caller-owned.
 func Seed(ctx context.Context, mnemonic Mnemonic, passphrase string) (keyphrase.Secret, error) {
 	if !validWordCount(len(mnemonic.words)) || !validEntropyBytes(len(mnemonic.entropy)) {
 		return nil, &Error{Code: CodeInvalidLength}
@@ -253,39 +256,25 @@ func Seed(ctx context.Context, mnemonic Mnemonic, passphrase string) (keyphrase.
 	if err := ctx.Err(); err != nil {
 		return nil, &Error{Code: CodeCanceled, Cause: err}
 	}
-	passwordBytes := []byte(norm.NFKD.String(mnemonic.String()))
+	password := norm.NFKD.String(mnemonic.String())
 	salt := []byte(norm.NFKD.String("mnemonic" + passphrase))
-	defer clear(passwordBytes)
 	defer clear(salt)
 
-	mac := hmac.New(sha512.New, passwordBytes)
-	_, _ = mac.Write(salt)
-	var block [4]byte
-	binary.BigEndian.PutUint32(block[:], 1)
-	_, _ = mac.Write(block[:])
-	u := mac.Sum(nil)
-	result := append(keyphrase.Secret(nil), u...)
-	for round := range pbkdf2Rounds - 1 {
-		iteration := round + 1
-		if iteration%64 == 0 {
-			if err := ctx.Err(); err != nil {
-				clear(u)
-				clear(result)
-				return nil, &Error{Code: CodeCanceled, Cause: err}
-			}
-		}
-		mac.Reset()
-		_, _ = mac.Write(u)
-		next := mac.Sum(nil)
-		clear(u)
-		u = next
-		for index := range result {
-			result[index] ^= u[index]
-		}
-	}
-	clear(u)
+	return deriveSeed(ctx, password, salt, pbkdf2Rounds, seedSize)
+}
 
-	return result[:seedSize], nil
+func deriveSeed(ctx context.Context, password string, salt []byte, rounds, size int) (keyphrase.Secret, error) {
+	derived, err := pbkdf2.Key(sha512.New, password, salt, rounds, size)
+	if err != nil {
+		return nil, &Error{Code: CodeDerivation, Cause: err}
+	}
+	result := keyphrase.Secret(derived)
+	if err := ctx.Err(); err != nil {
+		clear(result)
+		return nil, &Error{Code: CodeCanceled, Cause: err}
+	}
+
+	return result, nil
 }
 
 func parseWords(words []string, language Language) (Mnemonic, error) {

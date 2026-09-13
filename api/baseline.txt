@@ -115,7 +115,9 @@ func List(language Language) (*wordlist.List, error)
 
 func Seed(ctx context.Context, mnemonic Mnemonic, passphrase string) (keyphrase.Secret, error)
     Seed derives the 64-byte BIP-39 seed using NFKD and PBKDF2-HMAC-SHA512 with
-    2,048 iterations. The returned buffer is caller-owned.
+    2,048 iterations. Context cancellation is checked before and after the fixed,
+    bounded derivation because the maintained primitive cannot be interrupted.
+    The returned buffer is caller-owned.
 
 
 TYPES
@@ -157,6 +159,8 @@ const (
 	CodeChecksum ErrorCode = "checksum"
 	// CodeRandomness reports entropy-source failure.
 	CodeRandomness ErrorCode = "randomness"
+	// CodeDerivation reports failure of the maintained seed-derivation primitive.
+	CodeDerivation ErrorCode = "derivation"
 	// CodeCanceled reports context cancellation.
 	CodeCanceled ErrorCode = "canceled"
 	// CodeInvalidGenerator reports a nil selector.

@@ -20,6 +20,10 @@ Versioning after its first stable release.
 - Adopt the versioned shared `golib` repository contract for local and hosted
   verification while retaining package-owned API and mutation evidence.
 - Align isolated dependency checks with standalone package module paths.
+- Delegate BIP-39 seed derivation to the standard-library `crypto/pbkdf2`
+  primitive, failing closed if it rejects the specified parameters.
+- Update the production `x/text` dependency to v0.41.0 and pin the test
+  oracle's transitive `x/crypto` dependency to v0.56.0.
 
 ### Documentation
 
