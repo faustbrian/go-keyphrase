@@ -13,8 +13,8 @@ import (
 	"log/slog"
 	"strings"
 
-	keyphrase "github.com/faustbrian/go-keyphrase"
-	"github.com/faustbrian/go-keyphrase/wordlist"
+	keyphrase "github.com/faustbrian/go-keyphrase/v2"
+	"github.com/faustbrian/go-keyphrase/v2/wordlist"
 	"golang.org/x/text/unicode/norm"
 )
 

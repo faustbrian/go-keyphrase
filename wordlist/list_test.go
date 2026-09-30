@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/faustbrian/go-keyphrase/wordlist"
+	"github.com/faustbrian/go-keyphrase/v2/wordlist"
 )
 
 func TestNewCreatesImmutableIndexedList(t *testing.T) {

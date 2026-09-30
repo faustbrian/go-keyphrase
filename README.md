@@ -5,7 +5,7 @@
 [![Coverage](https://img.shields.io/badge/coverage-100%25_required-blue)](CONTRIBUTING.md#verification)
 [![Mutation](https://img.shields.io/badge/mutation-100%25_required-blue)](CONTRIBUTING.md#verification)
 [![Documentation](https://img.shields.io/badge/docs-checked_in_CI-blue)](docs/)
-[![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-keyphrase.svg)](https://pkg.go.dev/github.com/faustbrian/go-keyphrase)
+[![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-keyphrase/v2.svg)](https://pkg.go.dev/github.com/faustbrian/go-keyphrase/v2)
 [![Release](https://img.shields.io/github/v/release/faustbrian/go-keyphrase?sort=semver)](https://github.com/faustbrian/go-keyphrase/releases)
 [![Go](https://img.shields.io/badge/go-1.27.0-00ADD8?logo=go)](https://go.dev/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -23,14 +23,14 @@ and a purpose-built secret manager for storage and distribution.
 ## Install
 
 ```shell
-go get github.com/faustbrian/go-keyphrase
+go get github.com/faustbrian/go-keyphrase/v2
 ```
 
 The module requires Go 1.27.0 or later.
 
 ## Status and portability
 
-The module is stable at v1 and follows the published
+The v2 module follows the published
 [compatibility](COMPATIBILITY.md) and [deprecation](DEPRECATION.md) policies.
 Its public packages are portable Go: they have no platform-specific source
 files and require no operating-system service or external runtime backend.
@@ -110,6 +110,13 @@ All ten official word lists, every official entropy size, NFKD normalization,
 checksum validation, ambiguity-aware language detection, and the specified
 PBKDF2-HMAC-SHA512 derivation are supported. BIP-39 seed derivation is included
 for interoperability; wallet behavior is intentionally absent.
+
+Moving from v1 to v2 changes every Go import to
+`github.com/faustbrian/go-keyphrase/v2[/package]`. `bip39.Seed` now uses the
+maintained Go PBKDF2 primitive. It checks cancellation before and after the
+fixed derivation rather than during its rounds; an in-progress call cannot be
+preempted by its context. See the [BIP-39 guide](docs/bip39.md) for the strict
+FIPS-mode limitation.
 
 The checked-in [`Example_passphrase`](example_test.go) is the executable
 five-minute example. It is compiled and run by the Go example test gate.

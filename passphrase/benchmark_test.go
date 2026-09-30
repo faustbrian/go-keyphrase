@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/faustbrian/go-keyphrase/passphrase"
-	"github.com/faustbrian/go-keyphrase/wordlist/eff"
+	"github.com/faustbrian/go-keyphrase/v2/passphrase"
+	"github.com/faustbrian/go-keyphrase/v2/wordlist/eff"
 )
 
 func BenchmarkGenerateEFFLarge(b *testing.B) {

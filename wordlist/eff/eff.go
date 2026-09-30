@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/faustbrian/go-keyphrase/wordlist"
+	"github.com/faustbrian/go-keyphrase/v2/wordlist"
 )
 
 const sourceBase = "https://www.eff.org/files/2016"

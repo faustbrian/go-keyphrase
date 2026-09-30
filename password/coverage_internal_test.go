@@ -9,7 +9,7 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	keyphrase "github.com/faustbrian/go-keyphrase"
+	keyphrase "github.com/faustbrian/go-keyphrase/v2"
 )
 
 type failingSource struct{}

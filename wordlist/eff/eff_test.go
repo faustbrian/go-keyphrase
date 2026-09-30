@@ -3,7 +3,7 @@ package eff_test
 import (
 	"testing"
 
-	"github.com/faustbrian/go-keyphrase/wordlist/eff"
+	"github.com/faustbrian/go-keyphrase/v2/wordlist/eff"
 )
 
 func TestEmbeddedListsMatchPinnedMetadata(t *testing.T) {

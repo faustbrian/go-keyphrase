@@ -5,6 +5,14 @@ Versioning after its first stable release.
 
 ## Unreleased
 
+### Migration
+
+- Move the public module and all package imports to
+  `github.com/faustbrian/go-keyphrase/v2` for the changed BIP-39 seed
+  cancellation contract. Replace v1 imports with the corresponding `/v2`
+  paths; seed bytes remain specification-compatible, but cancellation is now
+  observed before and after the fixed derivation rather than during its rounds.
+
 ### Changed
 
 - Adopt the checksum-verified `go-library-tools` v1.4.0 CLI and immutable W14
@@ -22,6 +30,9 @@ Versioning after its first stable release.
 - Align isolated dependency checks with standalone package module paths.
 - Delegate BIP-39 seed derivation to the standard-library `crypto/pbkdf2`
   primitive, failing closed if it rejects the specified parameters.
+- Report strict FIPS-only rejection of BIP-39's short salt as `CodeDerivation`
+  without a seed; this environment cannot be treated as generally supported
+  for BIP-39 seed derivation.
 - Update the production `x/text` dependency to v0.41.0 and pin the test
   oracle's transitive `x/crypto` dependency to v0.56.0.
 

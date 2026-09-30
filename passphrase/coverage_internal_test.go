@@ -9,10 +9,10 @@ import (
 	"strings"
 	"testing"
 
-	keyphrase "github.com/faustbrian/go-keyphrase"
-	"github.com/faustbrian/go-keyphrase/keyphrasetest"
-	"github.com/faustbrian/go-keyphrase/password"
-	"github.com/faustbrian/go-keyphrase/wordlist"
+	keyphrase "github.com/faustbrian/go-keyphrase/v2"
+	"github.com/faustbrian/go-keyphrase/v2/keyphrasetest"
+	"github.com/faustbrian/go-keyphrase/v2/password"
+	"github.com/faustbrian/go-keyphrase/v2/wordlist"
 )
 
 type errorSource struct{}

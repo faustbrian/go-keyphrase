@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/faustbrian/go-keyphrase/password"
+	"github.com/faustbrian/go-keyphrase/v2/password"
 )
 
 func ExampleGenerator_Generate() {

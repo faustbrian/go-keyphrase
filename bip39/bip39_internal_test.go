@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 	"testing/fstest"
 	"time"
 
-	keyphrase "github.com/faustbrian/go-keyphrase"
-	"github.com/faustbrian/go-keyphrase/wordlist"
+	keyphrase "github.com/faustbrian/go-keyphrase/v2"
+	"github.com/faustbrian/go-keyphrase/v2/wordlist"
 	"golang.org/x/text/unicode/norm"
 )
 
@@ -228,6 +229,23 @@ func TestDeriveSeedFailsClosedWhenPrimitiveRejectsParameters(t *testing.T) {
 	seed, err := deriveSeed(context.Background(), "password", []byte("salt"), pbkdf2Rounds, -1)
 	if errorCode(err) != CodeDerivation || seed != nil {
 		t.Fatalf("deriveSeed(invalid size) = %v, %v", seed, err)
+	}
+}
+
+func TestSeedStrictFIPSRejectsShortBIP39Salt(t *testing.T) {
+	if !strings.Contains(","+os.Getenv("GODEBUG")+",", ",fips140=only,") {
+		t.Skip("requires GODEBUG=fips140=only")
+	}
+
+	mnemonic, err := FromEntropy(make([]byte, 16), English)
+	if err != nil {
+		t.Fatalf("FromEntropy() error = %v", err)
+	}
+	for _, passphrase := range []string{"", "short"} {
+		seed, err := Seed(context.Background(), mnemonic, passphrase)
+		if seed != nil || errorCode(err) != ErrorCode("derivation") {
+			t.Fatalf("Seed(short BIP-39 salt): returnedSeed=%t, code=%q; want no seed and derivation error", seed != nil, errorCode(err))
+		}
 	}
 }
 

@@ -17,6 +17,11 @@ interoperability tests compare every English entropy size, parsing, checksum
 rejection, normalized Japanese seed input, and PBKDF2 output with an independent
 mature Go implementation. Property tests cover policy satisfaction and round
 trips.
+The focused `TestSeedStrictFIPSRejectsShortBIP39Salt` check runs with
+`GODEBUG=fips140=only` to verify typed, no-seed rejection rather than disabling
+strict enforcement; ordinary BIP-39 vector tests run in the supported default
+crypto mode.
+
 Statistical checks use documented false-positive thresholds only to catch
 obvious selection regressions. Race tests share immutable lists and default
 generators. Fuzz targets cover alphabets, lists, mnemonic normalization and

@@ -1,4 +1,4 @@
-module github.com/faustbrian/go-keyphrase
+module github.com/faustbrian/go-keyphrase/v2
 
 go 1.27.0
 
