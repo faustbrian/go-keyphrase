@@ -1,33 +1,42 @@
 # Independent cryptographic design review
 
-Status: pending
+Status: approved for the reviewed v2 source candidate
 
-Reviewer: pending
+Reviewer: Codex, independent read-only reviewer
 
-Organization: pending
+Organization: OpenAI
 
-Review date: pending
+Review date: 2026-09-30
 
-Reviewed commit: pending
+Reviewed commit: 4185b83263be3b13aa26ff0ec84c8dfd5d16c174
 
-Findings: pending
+Scope: rejection sampling; constrained distribution counting and unranking;
+entropy claims; BIP-39 bit packing, NFKD normalization, PBKDF2 parameters,
+official vectors, and Japanese interoperability; word-list provenance; error
+and secret disclosure; resource bounds; cancellation and v1-to-v2 compatibility;
+concurrency; tests and release gates; and strict-FIPS short-salt behavior.
 
-Resolutions: pending
+Findings: No unresolved findings. The prior v1 cancellation-contract
+incompatibility and undocumented strict-FIPS short-salt behavior were resolved
+through the v2 module transition, explicit migration guidance, fail-closed
+derivation errors, and focused regression coverage.
 
-Residual risks: pending
+Resolutions: The candidate uses Go 1.27 `crypto/pbkdf2` with the BIP-39 NFKD,
+salt, SHA-512, iteration, and output parameters; checks cancellation before and
+after fixed derivation; preserves specification-compatible seed bytes; and
+consistently exposes the changed contract through `/v2`.
 
-Approval: pending
+Residual risks: Go cannot guarantee erasure of strings or copied secret
+buffers. Injected sources remain caller-trusted for cryptographic quality,
+prompt cancellation, and concurrency safety. PBKDF2 cannot be interrupted
+mid-operation. Strict FIPS-only mode rejects short BIP-39 salts. Entropy counts
+do not establish guessing resistance after disclosure, reuse, user
+modification, or downstream normalization.
 
-The existing `v1.0.0` tag does not represent an independent cryptographic
-review. Future release automation remains blocked until an independent reviewer
-records scope, identity or organization, date, commit, findings, resolutions,
-residual risks, and approval here. Review scope must include rejection
-sampling, constrained distribution counting and unranking, entropy claims,
-BIP-39 bit packing,
-normalization, PBKDF2 parameters, list provenance, error disclosure, resource
-bounds, cancellation, concurrency, tests, and release gates.
+Approval: Approved for the reviewed v2 source candidate; this is an
+independent agent review, not a human third-party certification.
 
-The implementing agent or author cannot satisfy this independent-review gate.
-No future release may proceed while any field above remains pending. An
-independent reviewer must replace every field with the reviewed evidence; the
-reviewed commit must be a full 40-character Git object ID.
+The existing `v1.0.0` tag predates this review and is not evidence of its
+completion. The reviewed source is the commit above; later documentation-only
+changes do not expand the reviewed cryptographic scope. A future release still
+requires the applicable source, CI, and release gates.

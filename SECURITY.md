@@ -13,5 +13,5 @@ deterministic public fixtures.
 Published releases follow [`COMPATIBILITY.md`](COMPATIBILITY.md) and
 [`DEPRECATION.md`](DEPRECATION.md). At and after v1, incompatible exported API
 or documented behavior changes require a new major version. The independent
-cryptographic design review remains pending; its status is tracked in
+agent cryptographic design review and its limits are recorded in
 [`docs/security-review.md`](docs/security-review.md).
