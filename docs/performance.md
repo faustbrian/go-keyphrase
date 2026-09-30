@@ -27,10 +27,11 @@ version in the consuming environment.
 ## Cancellation and resources
 
 Operations run synchronously and create no goroutines or background work.
-Random-source loops check contexts between reads, and BIP-39 seed derivation
-checks periodically between rounds. An in-flight randomness read can return
-promptly on cancellation only when the selected `Source` honors its
-`ReadContext` contract; callers own timeout policy and any custom source
+Random-source loops check contexts between reads. BIP-39 seed derivation checks
+the context before and after its fixed, bounded operation; the maintained
+primitive does not expose mid-operation cancellation. An in-flight randomness
+read can return promptly on cancellation only when the selected `Source` honors
+its `ReadContext` contract; callers own timeout policy and any custom source
 lifecycle.
 
 Generated secrets and caller destinations consume memory proportional to their

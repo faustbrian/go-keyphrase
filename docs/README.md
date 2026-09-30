@@ -3,7 +3,7 @@
 `keyphrase` generates passwords, EFF-list passphrases, and BIP-39 mnemonics
 from caller-controlled policies and cryptographic randomness.
 
-The module is stable at v1, requires Go 1.27.0 or later, and has no
+The v2 module requires Go 1.27.0 or later and has no
 platform-specific source files or external runtime backend. See the
 [compatibility policy](../COMPATIBILITY.md) for the supported public contract.
 

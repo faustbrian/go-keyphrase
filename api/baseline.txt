@@ -1,4 +1,4 @@
-package keyphrase // import "github.com/faustbrian/go-keyphrase"
+package keyphrase // import "github.com/faustbrian/go-keyphrase/v2"
 
 Package keyphrase provides shared cryptographic randomness and entropy contracts
 for password, passphrase, and BIP-39 mnemonic generation.
@@ -102,7 +102,7 @@ type Source interface {
     Implementations must fill as much of destination as possible and must return
     promptly after ctx is canceled.
 
-package bip39 // import "github.com/faustbrian/go-keyphrase/bip39"
+package bip39 // import "github.com/faustbrian/go-keyphrase/v2/bip39"
 
 Package bip39 implements BIP-39 mnemonic encoding, validation, language
 detection, and seed derivation. It does not implement wallets, addresses,
@@ -114,8 +114,10 @@ func List(language Language) (*wordlist.List, error)
     List returns an immutable, validated official list.
 
 func Seed(ctx context.Context, mnemonic Mnemonic, passphrase string) (keyphrase.Secret, error)
-    Seed derives the 64-byte BIP-39 seed using NFKD and PBKDF2-HMAC-SHA512 with
-    2,048 iterations. The returned buffer is caller-owned.
+    Seed derives the 64-byte BIP-39 seed using NFKD and PBKDF2-HMAC-SHA512
+    with 2,048 iterations. Context cancellation is checked before and after
+    the fixed, bounded derivation because the maintained primitive cannot be
+    interrupted. The returned buffer is caller-owned.
 
 
 TYPES
@@ -157,6 +159,8 @@ const (
 	CodeChecksum ErrorCode = "checksum"
 	// CodeRandomness reports entropy-source failure.
 	CodeRandomness ErrorCode = "randomness"
+	// CodeDerivation reports failure of the maintained seed-derivation primitive.
+	CodeDerivation ErrorCode = "derivation"
 	// CodeCanceled reports context cancellation.
 	CodeCanceled ErrorCode = "canceled"
 	// CodeInvalidGenerator reports a nil selector.
@@ -233,7 +237,7 @@ func (m Mnemonic) String() string
 func (m Mnemonic) Words() []string
     Words returns a copy of the mnemonic words.
 
-package keyphrasetest // import "github.com/faustbrian/go-keyphrase/keyphrasetest"
+package keyphrasetest // import "github.com/faustbrian/go-keyphrase/v2/keyphrasetest"
 
 Package keyphrasetest provides deterministic sources and statistical test
 helpers. Its distribution checks can detect obvious bias but do not certify a
@@ -276,7 +280,7 @@ func NewSource(data []byte) *Source
 func (s *Source) ReadContext(ctx context.Context, destination []byte) (int, error)
     ReadContext implements keyphrase.Source.
 
-package passphrase // import "github.com/faustbrian/go-keyphrase/passphrase"
+package passphrase // import "github.com/faustbrian/go-keyphrase/v2/passphrase"
 
 Package passphrase generates and validates uniformly selected word-list
 passphrases with optional independently generated password affixes.
@@ -393,7 +397,7 @@ type Policy struct {
 }
     Policy defines a passphrase distribution.
 
-package password // import "github.com/faustbrian/go-keyphrase/password"
+package password // import "github.com/faustbrian/go-keyphrase/v2/password"
 
 Package password generates uniformly distributed passwords under explicit
 character and required-class policies.
@@ -526,7 +530,7 @@ type Policy struct {
     Policy defines a Unicode password distribution. Length is measured in
     Unicode code points, not encoded bytes.
 
-package wordlist // import "github.com/faustbrian/go-keyphrase/wordlist"
+package wordlist // import "github.com/faustbrian/go-keyphrase/v2/wordlist"
 
 Package wordlist validates and exposes immutable cryptographic word lists.
 
@@ -615,7 +619,7 @@ func WithUniquePrefix(length int) Option
     WithUniquePrefix rejects entries sharing the first length Unicode code
     points. It is useful for formats that permit abbreviated words.
 
-package eff // import "github.com/faustbrian/go-keyphrase/wordlist/eff"
+package eff // import "github.com/faustbrian/go-keyphrase/v2/wordlist/eff"
 
 Package eff embeds the Electronic Frontier Foundation diceware word lists with
 pinned source and integrity metadata.

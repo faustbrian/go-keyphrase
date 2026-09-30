@@ -13,9 +13,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	keyphrase "github.com/faustbrian/go-keyphrase"
-	"github.com/faustbrian/go-keyphrase/password"
-	"github.com/faustbrian/go-keyphrase/wordlist"
+	keyphrase "github.com/faustbrian/go-keyphrase/v2"
+	"github.com/faustbrian/go-keyphrase/v2/password"
+	"github.com/faustbrian/go-keyphrase/v2/wordlist"
 )
 
 const (
@@ -182,12 +182,12 @@ func (g *Generator) Generate(ctx context.Context, policy Policy) (keyphrase.Secr
 
 	indices := make([]int, policy.Words)
 	for index := range indices {
-		selection, selectionErr := g.selector.Index(ctx, uint64(policy.WordList.Len())) //nolint:gosec // prepare bounds the positive list length.
+		selection, selectionErr := g.selector.Index(ctx, uint64(policy.WordList.Len())) // #nosec G115 -- prepare bounds the positive list length to 32,768.
 		if selectionErr != nil {
 			clear(indices)
 			return nil, &Error{Code: CodeRandomness, Cause: selectionErr}
 		}
-		indices[index] = int(selection) //nolint:gosec // selection is less than the bounded list length.
+		indices[index] = int(selection) // #nosec G115 -- selection is less than the list length bounded to 32,768.
 	}
 
 	prefix, err := g.generateAffix(ctx, policy.Prefix)

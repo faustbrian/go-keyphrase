@@ -3,8 +3,8 @@ package passphrase_test
 import (
 	"testing"
 
-	"github.com/faustbrian/go-keyphrase/passphrase"
-	"github.com/faustbrian/go-keyphrase/wordlist"
+	"github.com/faustbrian/go-keyphrase/v2/passphrase"
+	"github.com/faustbrian/go-keyphrase/v2/wordlist"
 )
 
 func FuzzParsing(f *testing.F) {

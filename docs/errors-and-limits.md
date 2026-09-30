@@ -20,6 +20,9 @@ passphrase bytes and fixes seed derivation cost to the specification.
 
 Cancellation depends on the injected `Source` honoring `ReadContext`; adapters
 for hardware devices must return promptly when the context is canceled.
+`bip39.Seed` checks cancellation before and after its fixed PBKDF2 derivation;
+`CodeDerivation` reports a maintained-primitive rejection, including strict
+FIPS-only rejection of a short BIP-39 salt, without returning a partial seed.
 
 ## Fixed limits
 

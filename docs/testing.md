@@ -8,15 +8,21 @@ compatibility, and benchmarks.
 
 The pinned shared CI workflow runs the same cataloged contract for pull
 requests, `main`, scheduled checks, and manual release rehearsals. A future
-release remains prohibited while
-[the independent review record](security-review.md) is pending. The existing
-`v1.0.0` tag must not be interpreted as evidence that this review occurred.
+release requires the approved [independent review record](security-review.md)
+for its source, plus applicable CI and release gates. The existing `v1.0.0`
+tag predates that review and must not be interpreted as its evidence.
 
 Official vectors cover every official language and entropy size. The
 interoperability tests compare every English entropy size, parsing, checksum
 rejection, normalized Japanese seed input, and PBKDF2 output with an independent
 mature Go implementation. Property tests cover policy satisfaction and round
 trips.
+
+The focused `TestSeedStrictFIPSRejectsShortBIP39Salt` check runs with
+`GODEBUG=fips140=only` to verify typed, no-seed rejection rather than disabling
+strict enforcement; ordinary BIP-39 vector tests run in the supported default
+crypto mode.
+
 Statistical checks use documented false-positive thresholds only to catch
 obvious selection regressions. Race tests share immutable lists and default
 generators. Fuzz targets cover alphabets, lists, mnemonic normalization and
