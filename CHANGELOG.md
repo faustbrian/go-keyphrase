@@ -5,6 +5,8 @@ Versioning after its first stable release.
 
 ## Unreleased
 
+## 2.0.0 - 2026-09-30
+
 ### Migration
 
 - Move the public module and all package imports to
