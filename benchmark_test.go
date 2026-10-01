@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	keyphrase "github.com/faustbrian/go-keyphrase"
+	keyphrase "github.com/faustbrian/go-keyphrase/v2"
 )
 
 func BenchmarkSelectorIndex(b *testing.B) {

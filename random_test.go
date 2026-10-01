@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"testing"
 
-	keyphrase "github.com/faustbrian/go-keyphrase"
+	keyphrase "github.com/faustbrian/go-keyphrase/v2"
 )
 
 type byteSource struct {

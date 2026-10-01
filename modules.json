@@ -5,14 +5,14 @@
   "modules": [
     {
       "directory": ".",
-      "module_path": "github.com/faustbrian/go-keyphrase",
+      "module_path": "github.com/faustbrian/go-keyphrase/v2",
       "go_version": "1.27.0",
       "packages": [
         {
           "module_directory": ".",
           "directory": ".",
           "name": "keyphrase",
-          "import_path": "github.com/faustbrian/go-keyphrase",
+          "import_path": "github.com/faustbrian/go-keyphrase/v2",
           "kind": "public",
           "production": true,
           "executable": true,
@@ -24,7 +24,7 @@
           "module_directory": ".",
           "directory": "bip39",
           "name": "bip39",
-          "import_path": "github.com/faustbrian/go-keyphrase/bip39",
+          "import_path": "github.com/faustbrian/go-keyphrase/v2/bip39",
           "kind": "public",
           "production": true,
           "executable": true,
@@ -36,7 +36,7 @@
           "module_directory": ".",
           "directory": "keyphrasetest",
           "name": "keyphrasetest",
-          "import_path": "github.com/faustbrian/go-keyphrase/keyphrasetest",
+          "import_path": "github.com/faustbrian/go-keyphrase/v2/keyphrasetest",
           "kind": "test support",
           "production": false,
           "executable": true,
@@ -48,7 +48,7 @@
           "module_directory": ".",
           "directory": "passphrase",
           "name": "passphrase",
-          "import_path": "github.com/faustbrian/go-keyphrase/passphrase",
+          "import_path": "github.com/faustbrian/go-keyphrase/v2/passphrase",
           "kind": "public",
           "production": true,
           "executable": true,
@@ -60,7 +60,7 @@
           "module_directory": ".",
           "directory": "password",
           "name": "password",
-          "import_path": "github.com/faustbrian/go-keyphrase/password",
+          "import_path": "github.com/faustbrian/go-keyphrase/v2/password",
           "kind": "public",
           "production": true,
           "executable": true,
@@ -72,7 +72,7 @@
           "module_directory": ".",
           "directory": "wordlist",
           "name": "wordlist",
-          "import_path": "github.com/faustbrian/go-keyphrase/wordlist",
+          "import_path": "github.com/faustbrian/go-keyphrase/v2/wordlist",
           "kind": "public",
           "production": true,
           "executable": true,
@@ -84,7 +84,7 @@
           "module_directory": ".",
           "directory": "wordlist/eff",
           "name": "eff",
-          "import_path": "github.com/faustbrian/go-keyphrase/wordlist/eff",
+          "import_path": "github.com/faustbrian/go-keyphrase/v2/wordlist/eff",
           "kind": "public",
           "production": true,
           "executable": true,
@@ -115,16 +115,16 @@
         ],
         "public_package_identifier": "keyphrase",
         "primary_entry_packages": [
-          "github.com/faustbrian/go-keyphrase"
+          "github.com/faustbrian/go-keyphrase/v2"
         ],
         "package_selection": {
-          "github.com/faustbrian/go-keyphrase": "Use for context-aware unbiased selection, caller-provided randomness, redacted secret bytes, and shared generation errors.",
-          "github.com/faustbrian/go-keyphrase/bip39": "Use for official BIP-39 mnemonic generation, parsing, language detection, validation, and seed derivation.",
-          "github.com/faustbrian/go-keyphrase/keyphrasetest": "Use only in tests for deterministic finite or counter-based randomness sources.",
-          "github.com/faustbrian/go-keyphrase/passphrase": "Use for bounded passphrase generation and parsing with explicit word-list, affix, casing, separator, and entropy policy.",
-          "github.com/faustbrian/go-keyphrase/password": "Use for bounded password generation and validation with exact Unicode or byte-alphabet distribution policy.",
-          "github.com/faustbrian/go-keyphrase/wordlist": "Use to construct and inspect immutable checksum-pinned word lists.",
-          "github.com/faustbrian/go-keyphrase/wordlist/eff": "Use for the embedded checksum-pinned EFF passphrase word lists."
+          "github.com/faustbrian/go-keyphrase/v2": "Use for context-aware unbiased selection, caller-provided randomness, redacted secret bytes, and shared generation errors.",
+          "github.com/faustbrian/go-keyphrase/v2/bip39": "Use for official BIP-39 mnemonic generation, parsing, language detection, validation, and seed derivation.",
+          "github.com/faustbrian/go-keyphrase/v2/keyphrasetest": "Use only in tests for deterministic finite or counter-based randomness sources.",
+          "github.com/faustbrian/go-keyphrase/v2/passphrase": "Use for bounded passphrase generation and parsing with explicit word-list, affix, casing, separator, and entropy policy.",
+          "github.com/faustbrian/go-keyphrase/v2/password": "Use for bounded password generation and validation with exact Unicode or byte-alphabet distribution policy.",
+          "github.com/faustbrian/go-keyphrase/v2/wordlist": "Use to construct and inspect immutable checksum-pinned word lists.",
+          "github.com/faustbrian/go-keyphrase/v2/wordlist/eff": "Use for the embedded checksum-pinned EFF passphrase word lists."
         },
         "lifecycle_status": "active",
         "maturity": "stable",
@@ -148,7 +148,7 @@
         "optional_owned_dependencies": [],
         "adapters": [],
         "companions": [
-          "github.com/faustbrian/go-keyphrase/keyphrasetest"
+          "github.com/faustbrian/go-keyphrase/v2/keyphrasetest"
         ],
         "supported_go": {
           "minimum": "1.27.0",
@@ -173,7 +173,7 @@
           "examples": "example_test.go",
           "faq": "docs/faq.md",
           "changelog": "CHANGELOG.md",
-          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-keyphrase",
+          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-keyphrase/v2",
           "ecosystem_index": "https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/README.md"
         },
         "known_good_compatibility_sets": [],
@@ -183,12 +183,11 @@
           "release": "not-started"
         }
       },
-      "version": "1.0.0",
+      "version": "2.0.0",
       "tag_prefix": "v",
       "owned_dependencies": [],
       "reverse_owned_dependencies": [],
       "external_runtime_dependencies": [
-        "github.com/tyler-smith/go-bip39",
         "golang.org/x/text"
       ],
       "required_services": [],

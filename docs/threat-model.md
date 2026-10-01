@@ -39,3 +39,12 @@ describe this generator's mathematical distribution, not guessing resistance
 after disclosure, reuse, human modification, or downstream normalization.
 Statistical tests detect obvious regressions but do not certify a random source.
 Stable release requires independent cryptographic design review.
+
+The application owns its decision to use BIP-39 under strict FIPS-only policy:
+Go's maintained PBKDF2 primitive rejects the specification's short salt for
+empty or short passphrases, and this library returns no seed with a typed error
+rather than altering BIP-39 parameters. Review this boundary if Go's FIPS
+policy or BIP-39 requirements change. An in-progress seed derivation cannot be
+interrupted by context cancellation; the application must account for its
+fixed, bounded work and review the latency bound if passphrase or derivation
+limits change.

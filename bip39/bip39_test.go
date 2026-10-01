@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/faustbrian/go-keyphrase/bip39"
+	"github.com/faustbrian/go-keyphrase/v2/bip39"
 )
 
 func TestPinnedOfficialListsLoad(t *testing.T) {

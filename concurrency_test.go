@@ -5,10 +5,10 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/faustbrian/go-keyphrase/bip39"
-	"github.com/faustbrian/go-keyphrase/passphrase"
-	"github.com/faustbrian/go-keyphrase/password"
-	"github.com/faustbrian/go-keyphrase/wordlist/eff"
+	"github.com/faustbrian/go-keyphrase/v2/bip39"
+	"github.com/faustbrian/go-keyphrase/v2/passphrase"
+	"github.com/faustbrian/go-keyphrase/v2/password"
+	"github.com/faustbrian/go-keyphrase/v2/wordlist/eff"
 )
 
 func TestSharedGeneratorsAndImmutableListsAreRaceSafe(t *testing.T) {

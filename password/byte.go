@@ -5,7 +5,7 @@ import (
 	"math"
 	"math/big"
 
-	keyphrase "github.com/faustbrian/go-keyphrase"
+	keyphrase "github.com/faustbrian/go-keyphrase/v2"
 )
 
 // ByteClass is a required set in a byte-alphabet policy.

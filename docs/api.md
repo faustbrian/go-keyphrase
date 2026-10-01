@@ -49,7 +49,9 @@ ordinary immutable Go strings. Default formatting and structured logging of a
 `Mnemonic` values. `Parse` detects languages and reports ambiguity;
 `ParseLanguage` uses an explicit list. `Mnemonic.String`, `Words`, `Language`,
 and `Entropy` return canonical or caller-owned representations. `Seed` performs
-the specified 2,048-round PBKDF2-HMAC-SHA512 derivation. Default formatting,
+the specified 2,048-round PBKDF2-HMAC-SHA512 derivation, checking cancellation
+before and after the fixed operation because the maintained primitive cannot be
+interrupted. Default formatting,
 structured logging, and standard text/JSON encoding of `Mnemonic` are redacted;
 `String` is the explicit plaintext boundary.
 

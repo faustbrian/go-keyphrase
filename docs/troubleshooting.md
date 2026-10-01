@@ -3,7 +3,7 @@
 ## Installation or compilation fails
 
 Confirm that `go version` reports Go 1.27.0 or later and that the imported
-module path is `github.com/faustbrian/go-keyphrase`. The public packages have
+module path is `github.com/faustbrian/go-keyphrase/v2`. The public packages have
 no platform-specific source files or external runtime service requirement.
 
 ## Generation returns an error
