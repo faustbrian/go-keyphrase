@@ -5,6 +5,18 @@ Versioning after its first stable release.
 
 ## Unreleased
 
+## 2.0.1 - 2026-10-02
+
+### Changed
+
+- Refresh the reusable CI workflow while retaining the verified v1.4.0
+  tooling and the package-owned verification contract.
+
+### Documentation
+
+- Correct support and troubleshooting guidance for disabled public issue and
+  discussion channels, linking the documentation and private security route.
+
 ## 2.0.0 - 2026-09-30
 
 ### Migration
