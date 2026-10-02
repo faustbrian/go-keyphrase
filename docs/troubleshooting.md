@@ -22,8 +22,6 @@ and [FAQ](faq.md).
 
 ## More help
 
-Use [GitHub Issues](https://github.com/faustbrian/go-keyphrase/issues) for a
-reproducible defect and [GitHub
-Discussions](https://github.com/faustbrian/go-keyphrase/discussions) for
-adoption questions. Report suspected vulnerabilities only through the private
-process in [SECURITY.md](../SECURITY.md).
+Consult the [documentation index](README.md) and [FAQ](faq.md) for usage
+and adoption guidance. Report suspected vulnerabilities only through the
+private process in [SECURITY.md](../SECURITY.md).
