@@ -5,6 +5,14 @@ Versioning after its first stable release.
 
 ## Unreleased
 
+### Fixed
+
+- Adopt x/text v0.42.0 normalization corrections for custom word-list
+  prefixes. Lists with a shared NFC display prefix are now rejected even
+  when the previous supplier incorrectly composed across a Unicode starter.
+  Callers using abbreviated custom lists may need to select distinct
+  prefixes; raw list entries and checksum identities remain unchanged.
+
 ## 2.0.1 - 2026-10-02
 
 ### Changed
