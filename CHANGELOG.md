@@ -5,6 +5,8 @@ Versioning after its first stable release.
 
 ## Unreleased
 
+## 2.0.2 - 2026-10-06
+
 ### Fixed
 
 - Adopt x/text v0.42.0 normalization corrections for custom word-list
@@ -12,6 +14,11 @@ Versioning after its first stable release.
   when the previous supplier incorrectly composed across a Unicode starter.
   Callers using abbreviated custom lists may need to select distinct
   prefixes; raw list entries and checksum identities remain unchanged.
+
+### Changed
+
+- Refresh immutable CI integration and the documentation-tool parser lock
+  without changing the public module identity or Go support floor.
 
 ## 2.0.1 - 2026-10-02
 
