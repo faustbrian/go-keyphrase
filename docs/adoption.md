@@ -38,4 +38,6 @@ component; replace only the BIP-39 seam.
 
 Adopt behind an application-owned interface, inject deterministic sources only
 in tests, observe error codes rather than values, establish output-lifetime
-rules, run `make check`, and obtain security review before a future release.
+rules, select `make check-full` for the existing full release boundary, and
+obtain security review before a future release. Ordinary development uses the
+[bounded contributor route](../CONTRIBUTING.md#verification).

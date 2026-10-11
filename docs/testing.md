@@ -1,16 +1,25 @@
 # Testing and release gates
 
-`golib check --all` runs formatting, documentation validation, `go vet`,
-tests, meaningful 100% statement coverage, race tests, strict linting, static
-analysis, embedded-list integrity, examples, dependency verification,
-vulnerability scanning, license review, fuzzing, mutation testing, API
-compatibility, and benchmarks.
+Start standalone development with `go test ./...`: deterministic tests, native
+fuzz seeds and saved corpus regressions do not need sibling checkouts or an
+ecosystem ledger. With the checksum-pinned public verifier, `make check` and
+`make ci` select bounded local verification, not a full campaign. Ordinary CI
+uses the released verifier rather than source bootstrapping and retains
+applicable security and fail-closed Required checks.
 
-The pinned shared CI workflow runs the same cataloged contract for pull
-requests, `main`, scheduled checks, and manual release rehearsals. A future
-release requires the approved [independent review record](security-review.md)
-for its source, plus applicable CI and release gates. The existing `v1.0.0`
-tag predates that review and must not be interpreted as its evidence.
+`make check-full` retains the original full operations and online specification
+refresh: formatting, documentation validation, vet, tests, coverage, race,
+lint/static checks, embedded-list integrity, examples, dependency verification,
+vulnerability/license review, API compatibility, benchmarks and all four native
+10s fuzz budgets. Broader assurance is selected for a named risk or scheduled/
+release boundary; mutation is optional local/scheduled, never a required PR
+status. See [contributor verification](../CONTRIBUTING.md#verification) for a
+single-target 2s fuzz command and optional single-package mutation.
+
+A future release requires the approved
+[independent review record](security-review.md) for its source, plus applicable
+CI and release gates, including `golib release dry-run --module .`. The existing
+`v1.0.0` tag predates that review and must not be interpreted as its evidence.
 
 Official vectors cover every official language and entropy size. The
 interoperability tests compare every English entropy size, parsing, checksum
