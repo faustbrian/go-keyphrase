@@ -198,3 +198,12 @@ secret lifetime and downstream normalization remain application-owned. The vecto
 no other unresolved source-policy question has been identified. Hosted CI, source
 publication, release qualification and broad runtime assurance are separate
 boundaries not established by this documentation-only audit.
+
+## Objective Enforcement
+
+The qualified public Tools v2.4.0 binary and immutable reusable CI source
+provide the strict tracked-source check through `make source-docs-check`,
+the existing local check/CI routes and Required aggregation. Release and
+selected security/assurance routes retain their existing controls. This
+structural status supplements the rendered semantic audit; it does not
+certify prose meaning, generator execution or runtime conformance.
