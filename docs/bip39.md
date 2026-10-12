@@ -23,9 +23,11 @@ validation. If all words occur in multiple lists, it returns
 the language. Whitespace is normalized for parsing; `Mnemonic.String` renders
 Japanese vectors with ideographic spaces and other languages with ASCII spaces.
 
-The tests consume the complete vector set pinned from Trezor's
+The tests consume the committed vector set attributed to Trezor's
 `python-mnemonic` repository and compare English mnemonic and seed output with
-the independently maintained `tyler-smith/go-bip39` implementation.
+`tyler-smith/go-bip39`. The current repository does not record a separate
+upstream vector revision/checksum or producer; future corpus updates need to
+resolve that provenance rather than infer it from the independent comparison.
 
 BIP-39 is included only for mnemonic and seed interoperability. This module
 does not implement BIP-32, BIP-44, wallets, addresses, private keys,

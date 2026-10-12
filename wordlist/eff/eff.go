@@ -1,5 +1,7 @@
 // Package eff embeds the Electronic Frontier Foundation diceware word lists
-// with pinned source and integrity metadata.
+// with pinned source and integrity metadata. Embedded data is the word column
+// in original order, not the original indexed source rows. Each loader memoizes
+// its immutable list or failure; no network refresh or retry is performed.
 package eff
 
 import (

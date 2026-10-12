@@ -1,5 +1,7 @@
 // Package passphrase generates and validates uniformly selected word-list
-// passphrases with optional independently generated password affixes.
+// passphrases with optional independently generated password affixes. Uniform
+// selection assumes uniform independent source bytes. Parsing validates policy
+// and representation, not that the supplied phrase was randomly generated.
 package passphrase
 
 import (
@@ -49,14 +51,20 @@ const (
 
 // Error omits phrase contents and generated secret material.
 type Error struct {
-	Code  ErrorCode
+	// Code identifies the category; package errors use the constants above.
+	// Caller-supplied codes are rendered verbatim.
+	Code ErrorCode
+	// Cause retains the underlying error for errors.Is/As. Default formatting
+	// omits its text; logging an extracted cause may disclose source data.
 	Cause error
 }
 
+// Error formats only the operation and Code, never the wrapped Cause.
 func (e *Error) Error() string {
 	return fmt.Sprintf("passphrase: operation failed (%s)", e.Code)
 }
 
+// Unwrap returns Cause without sanitizing it for logging or encoding.
 func (e *Error) Unwrap() error {
 	return e.Cause
 }
@@ -86,31 +94,60 @@ const (
 // Affix is an independently generated password separated from the word
 // phrase by Separator.
 type Affix struct {
+	// Separator is nonempty valid UTF-8, at most 64 bytes; none of its code
+	// points may occur in Policy.Alphabet.
 	Separator string
-	Policy    password.Policy
+	// Policy supplies a separately sampled Unicode password distribution. Do
+	// not mutate its slices during a call.
+	Policy password.Policy
 }
 
 // Policy defines a passphrase distribution.
 type Policy struct {
-	WordList           *wordlist.List
-	Words              int
-	Separator          string
-	Casing             Casing
-	Prefix             *Affix
-	Suffix             *Affix
+	// WordList is a nonnil immutable list, with at most 32768 entries. It is
+	// shared, not cloned.
+	WordList *wordlist.List
+	// Words is the number of independently selected words with replacement,
+	// from 2 through 128; repeated words are permitted.
+	Words int
+	// Separator is nonempty valid UTF-8, at most 64 bytes, absent as a
+	// substring of transformed list entries. Parsing uses it exactly.
+	Separator string
+	// Casing transforms each entry without changing selection count;
+	// transformations that collapse entries are rejected.
+	Casing Casing
+	// Prefix optionally adds an independently sampled affix before the words;
+	// the pointed configuration must not change during a call.
+	Prefix *Affix
+	// Suffix optionally adds an independently sampled affix after the words;
+	// the pointed configuration must not change during a call.
+	Suffix *Affix
+	// MinimumEntropyBits is a finite nonnegative floor compared with
+	// approximate Bits in Analyze, generation and Parse. It does not
+	// authenticate a phrase's random origin.
 	MinimumEntropyBits float64
 }
 
 // Distribution describes the exact number of possible outputs.
 type Distribution struct {
+	// Outcomes is an owned exact count: listSize^Words times the counts of
+	// configured affixes. The caller may mutate it.
 	Outcomes *big.Int
-	Bits     float64
+	// Bits estimates log2(Outcomes) from its leading at most 53 bits plus a
+	// shift; it is not an exact logarithm or strength score.
+	Bits float64
 }
 
 // Parsed contains caller-owned affix buffers and transformed list words.
 type Parsed struct {
+	// Prefix owns copied prefix bytes, or is nil if no prefix is configured;
+	// clear it when no longer needed.
 	Prefix keyphrase.Secret
-	Words  []string
+	// Words owns its slice of exact transformed list strings. Strings and
+	// copies cannot be wiped through the byte-buffer API.
+	Words []string
+	// Suffix owns copied suffix bytes, or is nil if no suffix is configured;
+	// clear it when no longer needed.
 	Suffix keyphrase.Secret
 }
 
@@ -129,7 +166,9 @@ func (Parsed) MarshalText() ([]byte, error) {
 	return []byte("passphrase.Parsed{redacted}"), nil
 }
 
-// Generator generates passphrases from a shared unbiased selector.
+// Generator generates passphrases from a shared selector. It adds no lock;
+// concurrent use is safe only when the selector's source is concurrency-safe.
+// Policy/affix slices and pointers must remain stable during each call.
 type Generator struct {
 	selector  *keyphrase.Selector
 	passwords *password.Generator
@@ -156,7 +195,9 @@ func DefaultGenerator() *Generator {
 	return &Generator{selector: selector, passwords: passwordGenerator}
 }
 
-// Analyze validates policy and returns its exact output count and entropy.
+// Analyze validates policy and returns its exact output count and approximate
+// base-2 logarithm. Counts assume independent word/affix draws; they do not
+// certify entropy from a caller-supplied randomness source.
 func Analyze(policy Policy) (Distribution, error) {
 	prepared, err := prepare(policy)
 	if err != nil {
@@ -170,7 +211,8 @@ func Analyze(policy Policy) (Distribution, error) {
 }
 
 // Generate returns a complete caller-owned UTF-8 buffer and never returns a
-// partial phrase on failure.
+// partial phrase on failure. Source reads observe context; policy preparation
+// and final assembly do not check it. No caller-owned policy storage is retained.
 func (g *Generator) Generate(ctx context.Context, policy Policy) (keyphrase.Secret, error) {
 	if g == nil || g.selector == nil || g.passwords == nil {
 		return nil, &Error{Code: CodeInvalidGenerator}
@@ -225,7 +267,9 @@ func (g *Generator) Generate(ctx context.Context, policy Policy) (keyphrase.Secr
 }
 
 // Parse validates and separates a phrase without treating entropy as a
-// password-strength assertion.
+// password-strength assertion. It copies affix bytes and the word slice, uses
+// exact policy separators/transformed entries, and rejects invalid UTF-8 or input
+// above 131199 bytes. It does not normalize or case-fold input words.
 func Parse(encoded []byte, policy Policy) (Parsed, error) {
 	prepared, err := prepare(policy)
 	if err != nil {
@@ -377,6 +421,9 @@ func estimatedSize(policy Policy, words []string) int {
 	return size
 }
 
+// log2 uses a leading-bit projection to avoid overflowing float64 conversion
+// for large exact counts. Dropped low bits and floating rounding mean this is
+// an estimate, not an exact arbitrary-precision logarithm.
 func log2(value *big.Int) float64 {
 	bitLength := value.BitLen()
 	shift := max(bitLength-53, 0)

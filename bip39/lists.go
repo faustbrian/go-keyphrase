@@ -69,6 +69,7 @@ var checksums = map[Language]string{
 var embeddedLists embed.FS
 
 var (
+	// listsOnce owns publication of both immutable lists and the cached error.
 	listsOnce sync.Once
 	lists     map[Language]*wordlist.List
 	listsErr  error
@@ -79,7 +80,9 @@ func Languages() []Language {
 	return append([]Language(nil), officialLanguages...)
 }
 
-// List returns an immutable, validated official list.
+// List returns a shared immutable, validated official list. The first supported
+// call loads all ten embedded lists once; any load failure is cached for later
+// calls, without retry or network refresh. Metadata pins the source revision.
 func List(language Language) (*wordlist.List, error) {
 	if _, exists := checksums[language]; !exists {
 		return nil, &Error{Code: CodeUnsupportedLanguage}

@@ -1,4 +1,7 @@
-// Package wordlist validates and exposes immutable cryptographic word lists.
+// Package wordlist validates and exposes immutable word lists with explicit
+// provenance metadata. Validation checks entries and checksum consistency, not
+// publisher authority or dictionary suitability for a threat model. Raw words
+// and order are preserved; normalization checks do not rewrite stored entries.
 package wordlist
 
 import (
@@ -45,26 +48,44 @@ const (
 
 // Error intentionally excludes words and other potentially sensitive input.
 type Error struct {
+	// Code identifies the category; package errors use the constants above.
+	// Caller-supplied values are rendered verbatim.
 	Code ErrorCode
 }
 
+// Error formats the validation category without including list entries.
 func (e *Error) Error() string {
 	return fmt.Sprintf("wordlist: validation failed (%s)", e.Code)
 }
 
 // Metadata pins provenance and integrity for a list.
 type Metadata struct {
-	ID            string
-	Language      string
-	Source        string
-	Version       string
-	License       string
+	// ID is the nonempty caller-selected identity, not an authenticated
+	// registry entry.
+	ID string
+	// Language is a nonempty descriptive language label, not validated against
+	// a registry.
+	Language string
+	// Source records a nonempty source location; New does not fetch it.
+	Source string
+	// Version records a nonempty source version or revision without verifying
+	// it.
+	Version string
+	// License is a nonempty provenance label, not a license compliance verdict.
+	License string
+	// ExpectedWords must equal the supplied entry count.
 	ExpectedWords int
-	SHA256        string
-	SourceSHA256  string
+	// SHA256 is the hex SHA-256 of raw entries with a newline after each;
+	// matching is case-insensitive and preserves entry order.
+	SHA256 string
+	// SourceSHA256 is the hex SHA-256 claimed for original source bytes. New
+	// checks its shape, not those bytes; trusted provenance is separate.
+	SourceSHA256 string
 }
 
-// List is an immutable validated word list.
+// List is an immutable validated word list, safe for concurrent read-only use.
+// It must come from New or a validated embedded loader; its zero value does not
+// satisfy list-construction guarantees. Methods require a nonnil receiver.
 type List struct {
 	metadata Metadata
 	words    []string
@@ -88,7 +109,9 @@ func WithNFKD() Option {
 type Option func(*config) error
 
 // WithUniquePrefix rejects entries sharing the first length Unicode code
-// points. It is useful for formats that permit abbreviated words.
+// points after NFC display normalization, not raw UTF-8 byte prefixes. Shorter
+// entries use their whole normalized form. It checks uniqueness; Index does not
+// accept abbreviations.
 func WithUniquePrefix(length int) Option {
 	return func(configuration *config) error {
 		if length <= 0 {
@@ -99,7 +122,11 @@ func WithUniquePrefix(length int) Option {
 	}
 }
 
-// New validates words and returns an immutable copy.
+// New validates words and returns an immutable copy of the slice. It admits
+// 1..65536 entries of at most 1024 UTF-8 bytes each, rejecting whitespace,
+// controls, exact duplicates and NFKD collisions without rewriting raw entries.
+// Metadata strings are copied by value; SourceSHA256 is only shape-checked.
+// Callers must not modify the input slice during validation.
 func New(metadata Metadata, words []string, options ...Option) (*List, error) {
 	if len(words) == 0 {
 		return nil, &Error{Code: CodeEmpty}
@@ -184,7 +211,7 @@ func (l *List) Word(index int) (string, bool) {
 	return l.words[index], true
 }
 
-// Index returns the exact entry index.
+// Index returns the exact raw entry index without normalization or case folding.
 func (l *List) Index(word string) (int, bool) {
 	index, exists := l.indices[word]
 	return index, exists
@@ -250,6 +277,8 @@ func validWord(word string) bool {
 	return true
 }
 
+// runePrefix checks display prefixes in NFC, preserving the raw entry/checksum
+// elsewhere. Normalization must respect Unicode starters before slicing runes.
 func runePrefix(value string, length int) string {
 	runes := []rune(norm.NFC.String(value))
 	return string(runes[:min(length, len(runes))])

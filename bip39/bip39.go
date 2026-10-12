@@ -57,15 +57,24 @@ const (
 
 // Error never contains mnemonic, entropy, passphrase, or seed material.
 type Error struct {
-	Code       ErrorCode
-	Cause      error
+	// Code identifies the category; package errors use the constants above.
+	// Caller-supplied codes are rendered verbatim.
+	Code ErrorCode
+	// Cause retains the underlying error for errors.Is/As. Default formatting
+	// omits its text; logging an extracted cause may disclose source data.
+	Cause error
+	// Candidates contains official language IDs for vocabulary ambiguity,
+	// before checksum selection. The slice is caller-mutable and need not be
+	// set for other codes.
 	Candidates []Language
 }
 
+// Error formats only the operation and Code, never the wrapped Cause.
 func (e *Error) Error() string {
 	return fmt.Sprintf("bip39: operation failed (%s)", e.Code)
 }
 
+// Unwrap returns Cause without sanitizing it for logging or encoding.
 func (e *Error) Unwrap() error {
 	return e.Cause
 }
@@ -80,14 +89,18 @@ func (e *Error) MarshalText() ([]byte, error) {
 	return []byte(e.Error()), nil
 }
 
-// Mnemonic is an immutable validated BIP-39 mnemonic.
+// Mnemonic is an immutable validated BIP-39 mnemonic, safe for concurrent reads.
+// The zero value is invalid for Seed. Private entropy remains stored for the
+// value's lifetime; clearing an Entropy copy does not wipe this retained state.
 type Mnemonic struct {
 	language Language
 	words    []string
 	entropy  []byte
 }
 
-// FromEntropy creates a mnemonic from one of the official entropy sizes.
+// FromEntropy copies entropy and encodes 16, 20, 24, 28 or 32 bytes plus their
+// SHA-256 checksum into an official list. It does not measure the input's random
+// quality. The caller must not modify entropy during the call.
 func FromEntropy(entropy []byte, language Language) (Mnemonic, error) {
 	if !validEntropyBytes(len(entropy)) {
 		return Mnemonic{}, &Error{Code: CodeInvalidEntropy}
@@ -128,7 +141,9 @@ func fromEntropy(entropy []byte, language Language, list interface {
 	return Mnemonic{language: language, words: words, entropy: append([]byte(nil), entropy...)}, nil
 }
 
-// Generate creates fresh entropy and its corresponding mnemonic.
+// Generate fills fresh entropy and creates its corresponding mnemonic. It
+// consumes source bytes before language loading/validation, so an unsupported
+// language can fail after a read without returning a mnemonic.
 func Generate(ctx context.Context, entropyBits int, language Language, selector *keyphrase.Selector) (Mnemonic, error) {
 	if selector == nil {
 		return Mnemonic{}, &Error{Code: CodeInvalidGenerator}
@@ -147,7 +162,9 @@ func Generate(ctx context.Context, entropyBits int, language Language, selector 
 }
 
 // Parse detects the official language and validates the checksum. Vocabulary
-// shared by multiple lists is reported as ambiguity instead of guessed.
+// shared by multiple lists is reported as ambiguity instead of guessed, before
+// trying checksums. Input must contain 1..65536 bytes; NFKD and Unicode Fields
+// normalize spelling/whitespace, without case folding.
 func Parse(phrase string) (Mnemonic, error) {
 	words, err := normalizedWords(phrase)
 	if err != nil {
@@ -192,7 +209,9 @@ func detectLanguage(words []string, provider func(Language) (*wordlist.List, err
 	return candidates, nil
 }
 
-// ParseLanguage validates phrase against an explicitly selected language.
+// ParseLanguage validates phrase against an explicitly selected language using
+// Parse's NFKD/whitespace and byte-size rules. It checks the BIP-39 checksum;
+// checksum validity does not establish a mnemonic's source entropy quality.
 func ParseLanguage(phrase string, language Language) (Mnemonic, error) {
 	words, err := normalizedWords(phrase)
 	if err != nil {
@@ -245,7 +264,11 @@ func (m Mnemonic) Entropy() keyphrase.Secret {
 // Seed derives the 64-byte BIP-39 seed using NFKD and PBKDF2-HMAC-SHA512 with
 // 2,048 iterations. Context cancellation is checked before and after the fixed,
 // bounded derivation because the maintained primitive cannot be interrupted.
-// The returned buffer is caller-owned.
+// The returned buffer is caller-owned. passphrase is limited to 1 MiB before
+// normalization. A wrong passphrase still derives a seed; it is not authenticated.
+// The fixed BIP-39 parameters are for interoperability, not a recommendation for
+// password storage. Strict FIPS-only short-salt rejection yields CodeDerivation
+// and no seed; parameters are not silently changed.
 func Seed(ctx context.Context, mnemonic Mnemonic, passphrase string) (keyphrase.Secret, error) {
 	if !validWordCount(len(mnemonic.words)) || !validEntropyBytes(len(mnemonic.entropy)) {
 		return nil, &Error{Code: CodeInvalidLength}
@@ -315,6 +338,9 @@ func parseWords(words []string, language Language) (Mnemonic, error) {
 	return Mnemonic{language: language, words: append([]string(nil), words...), entropy: entropy}, nil
 }
 
+// normalizedWords bounds original encoded bytes before normalization; the
+// normalization result may expand. Fields intentionally accepts varied Unicode
+// whitespace without changing the official case-sensitive vocabulary.
 func normalizedWords(phrase string) ([]string, error) {
 	if len(phrase) == 0 || len(phrase) > maxMnemonicBytes {
 		return nil, &Error{Code: CodeOversized}

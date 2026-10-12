@@ -22,6 +22,9 @@ Exact values live in `bip39/lists.go`.
 
 ## Verification
 
-`make wordlists` loads every embedded list through the same validation used at
-runtime. `make test` and `make coverage` repeat the check. Source refreshes must
-be explicit review changes; builds do not fetch mutable network content.
+The typed test operations in `.golib.yaml` select
+`TestEmbeddedListsMatchPinnedMetadata` and `TestPinnedOfficialListsLoad`,
+loading embedded lists through their runtime validators. `wordlist.New`
+checks the transformed checksum and only the shape of `SourceSHA256`; it does
+not download and authenticate the original source. Source refreshes must be
+explicit review changes; builds do not fetch mutable network content.

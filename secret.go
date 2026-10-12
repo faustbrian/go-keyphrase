@@ -8,11 +8,16 @@ import (
 
 // Secret is a caller-owned byte slice whose fmt representation is always
 // redacted. Convert it explicitly to []byte or string only at a reviewed
-// integration boundary.
+// integration boundary. Assignment or []byte conversion shares its mutable
+// backing array; redaction is not encryption and does not cover arbitrary
+// binary encoders or wrappers that explicitly extract the bytes.
 type Secret []byte
 
-// Clear overwrites the current backing array as a best-effort measure. Go and
-// the operating system may retain compiler, runtime, string, or page copies.
+// Clear overwrites the slice's visible length as a best-effort measure, not
+// unused capacity or independently copied buffers. Go and the operating system
+// may retain compiler, runtime, string, or page copies.
+// Aliases of this same slice storage observe the clearing; independent copies
+// and immutable strings do not.
 func (s Secret) Clear() {
 	clear(s)
 }

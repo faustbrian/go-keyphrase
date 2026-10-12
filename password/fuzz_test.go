@@ -9,6 +9,9 @@ import (
 	"github.com/faustbrian/go-keyphrase/v2/password"
 )
 
+// FuzzAnalyzeAlphabet bounds alphabet/class strings and derives a small length.
+// Accepted policies must generate a value satisfying Validate with a public
+// deterministic zero source; this is a policy oracle, not a randomness test.
 func FuzzAnalyzeAlphabet(f *testing.F) {
 	f.Add("abcABC123", "abc", "ABC", 12)
 	f.Add("ÅÅ", "Å", "Å", 2)

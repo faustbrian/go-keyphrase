@@ -10,16 +10,30 @@ import (
 
 // ByteClass is a required set in a byte-alphabet policy.
 type ByteClass struct {
-	Name  string
+	// Name must be nonempty and labels this requirement.
+	Name string
+	// Bytes is a nonempty duplicate-free set from the original alphabet; at
+	// least one byte must survive exclusions. Do not mutate it during a call.
 	Bytes []byte
 }
 
-// BytePolicy defines a distribution over arbitrary byte values.
+// BytePolicy defines a distribution over arbitrary byte values, without Unicode
+// normalization or text encoding. Its slices must remain stable during a call.
 type BytePolicy struct {
-	Length             int
-	Alphabet           []byte
-	Required           []ByteClass
-	Excluded           []byte
+	// Length is the positive output byte count, at most 1024.
+	Length int
+	// Alphabet contains ordered distinct bytes, at most 256; zero and non-UTF-8
+	// values are allowed. Do not mutate it during a call.
+	Alphabet []byte
+	// Required contains up to 16 possibly overlapping required sets, satisfied
+	// at least once each. Do not mutate it or its Bytes slices during a call.
+	Required []ByteClass
+	// Excluded removes exact byte values before counting; it must have no
+	// duplicates and must not be modified during a call.
+	Excluded []byte
+	// MinimumEntropyBits is a finite nonnegative floor compared with
+	// approximate Bits by AnalyzeBytes and generation, not a source-quality
+	// measurement.
 	MinimumEntropyBits float64
 }
 
@@ -96,7 +110,9 @@ func unrankBytes(prepared *preparedBytePolicy, length int, rank *big.Int) (keyph
 }
 
 // GenerateBytesInto fills destination only when it can hold the complete
-// fixed-length output.
+// fixed-length output. After checking the generator, it rejects a short buffer
+// before policy validation or sampling. Other errors leave destination unchanged;
+// bytes after the returned count are untouched.
 func (g *Generator) GenerateBytesInto(ctx context.Context, destination []byte, policy BytePolicy) (int, error) {
 	if g == nil || g.selector == nil {
 		return 0, &Error{Code: CodeInvalidGenerator}

@@ -4,12 +4,26 @@ Package keyphrase provides shared cryptographic randomness and entropy contracts
 for password, passphrase, and BIP-39 mnemonic generation.
 
 It does not hash passwords, manage wallets, derive wallet keys, store secrets,
-or distribute secret material.
+or distribute secret material. Exact output counts describe the configured
+distribution, not resistance after disclosure, edits or downstream
+normalization. Uniform generation relies on a uniform, independent Source;
+custom source quality, cancellation and concurrency safety are caller-owned.
+
+Contexts must be nonnil when checked. Cancellation is cooperative around source
+reads; password preparation/unranking and phrase assembly are not interruptible.
+BIP-39 seed derivation checks before and after fixed PBKDF2. Secret buffers
+are caller-owned but slice aliases share storage; clearing is best effort and
+does not erase immutable strings or a Mnemonic's retained entropy. The package
+creates no background goroutines or shutdown owner.
 
 TYPES
 
 type Error struct {
-	Code  ErrorCode
+	// Code identifies the category; package errors use the constants above.
+	// Caller-supplied codes are rendered verbatim.
+	Code ErrorCode
+	// Cause retains the underlying error for errors.Is/As. Default formatting
+	// omits its text; logging an extracted cause may disclose source data.
 	Cause error
 }
     Error is a typed, secret-safe generation error.
@@ -19,6 +33,7 @@ type Error struct {
     log arbitrary source errors without reviewing their disclosure behavior.
 
 func (e *Error) Error() string
+    Error formats only the operation and Code, never the wrapped Cause.
 
 func (e *Error) Format(state fmt.State, _ rune)
     Format prevents wrapped source diagnostics from appearing in debug output.
@@ -27,6 +42,7 @@ func (e *Error) MarshalText() ([]byte, error)
     MarshalText omits wrapped source diagnostics from encoded output.
 
 func (e *Error) Unwrap() error
+    Unwrap returns Cause without sanitizing it for logging or encoding.
 
 type ErrorCode string
     ErrorCode identifies a generation failure without exposing secret material.
@@ -53,16 +69,23 @@ type Option func(*Selector) error
     Option configures a Selector.
 
 func WithMaxAttempts(maxAttempts int) Option
-    WithMaxAttempts bounds rejected samples from a faulty or hostile source.
+    WithMaxAttempts bounds candidate draws per Index or BigInt operation.
+    It requires a positive count; it does not bound partial-read calls or time
+    spent inside the source. The default is 128 candidate draws.
 
 type Secret []byte
     Secret is a caller-owned byte slice whose fmt representation is always
     redacted. Convert it explicitly to []byte or string only at a reviewed
-    integration boundary.
+    integration boundary. Assignment or []byte conversion shares its mutable
+    backing array; redaction is not encryption and does not cover arbitrary
+    binary encoders or wrappers that explicitly extract the bytes.
 
 func (s Secret) Clear()
-    Clear overwrites the current backing array as a best-effort measure. Go and
-    the operating system may retain compiler, runtime, string, or page copies.
+    Clear overwrites the slice's visible length as a best-effort measure,
+    not unused capacity or independently copied buffers. Go and the operating
+    system may retain compiler, runtime, string, or page copies. Aliases of this
+    same slice storage observe the clearing; independent copies and immutable
+    strings do not.
 
 func (Secret) Format(state fmt.State, _ rune)
     Format prevents accidental disclosure through logging and debugging verbs.
@@ -76,31 +99,50 @@ func (Secret) MarshalText() ([]byte, error)
 type Selector struct {
 	// Has unexported fields.
 }
-    Selector performs bounded rejection sampling from a Source.
+    Selector performs bounded rejection sampling from a Source. Uniform and
+    independent source bytes are required for uniform results. Selector retains
+    source without wrapping it in a lock; concurrency safety depends on source.
+    The zero value is invalid. Contexts must be nonnil when an operation checks
+    them; the library cannot interrupt a Source call that ignores cancellation.
 
 func DefaultSelector() *Selector
-    DefaultSelector returns a selector backed by crypto/rand.
+    DefaultSelector returns a selector backed by crypto/rand. It checks context
+    before random reads, but cannot interrupt an in-progress crypto/rand read.
 
 func NewSelector(source Source, options ...Option) (*Selector, error)
-    NewSelector constructs a selector using source.
+    NewSelector constructs a selector retaining source. Options run in order,
+    are not retained, and may return their own errors. Nil source/option values
+    are rejected; custom source quality and sharing remain caller-owned.
 
 func (s *Selector) BigInt(ctx context.Context, upper *big.Int) (*big.Int, error)
     BigInt returns a uniformly distributed arbitrary-precision value in [0,
-    upper). The returned integer never aliases upper.
+    upper), assuming uniform independent source bytes. upper must be positive
+    and must not be modified during the call. At most 2^20 bits are sampled; the
+    returned integer never aliases upper. A bound of one needs no source read.
 
 func (s *Selector) Fill(ctx context.Context, destination []byte) error
     Fill writes cryptographic random bytes into destination. On failure it
-    clears destination so callers never observe a partial secret.
+    clears destination before returning an error. It allows at most 128 KiB;
+    a valid selector with an empty destination succeeds without reading or
+    checking ctx. Callers must not observe or mutate destination during a call;
+    it can contain partial bytes until an error clears it.
 
 func (s *Selector) Index(ctx context.Context, upper uint64) (uint64, error)
-    Index returns a uniformly distributed value in [0, upper).
+    Index rejection-samples a value in [0, upper), uniformly if source bytes are
+    uniform and independent. upper must be nonzero. A bound of one returns zero
+    without a read after checking ctx. Cancellation is checked before reads,
+    not again after a successful final read.
 
 type Source interface {
+	// ReadContext reads into caller-provided space. Selector accepts positive
+	// partial progress with nil error, but rejects any nonnil error, even with
+	// a full count. Zero or invalid counts fail without a retry loop.
 	ReadContext(ctx context.Context, destination []byte) (int, error)
 }
     Source supplies cryptographic random bytes and participates in cancellation.
     Implementations must fill as much of destination as possible and must return
-    promptly after ctx is canceled.
+    promptly after ctx is canceled. Randomness quality is a trusted caller
+    assumption, not verified by this interface or by statistical test helpers.
 
 package bip39 // import "github.com/faustbrian/go-keyphrase/v2/bip39"
 
@@ -111,25 +153,40 @@ private-key custody, BIP-32, or BIP-44.
 FUNCTIONS
 
 func List(language Language) (*wordlist.List, error)
-    List returns an immutable, validated official list.
+    List returns a shared immutable, validated official list. The first
+    supported call loads all ten embedded lists once; any load failure is cached
+    for later calls, without retry or network refresh. Metadata pins the source
+    revision.
 
 func Seed(ctx context.Context, mnemonic Mnemonic, passphrase string) (keyphrase.Secret, error)
     Seed derives the 64-byte BIP-39 seed using NFKD and PBKDF2-HMAC-SHA512
     with 2,048 iterations. Context cancellation is checked before and after
     the fixed, bounded derivation because the maintained primitive cannot be
-    interrupted. The returned buffer is caller-owned.
+    interrupted. The returned buffer is caller-owned. passphrase is limited to 1
+    MiB before normalization. A wrong passphrase still derives a seed; it is not
+    authenticated. The fixed BIP-39 parameters are for interoperability, not a
+    recommendation for password storage. Strict FIPS-only short-salt rejection
+    yields CodeDerivation and no seed; parameters are not silently changed.
 
 
 TYPES
 
 type Error struct {
-	Code       ErrorCode
-	Cause      error
+	// Code identifies the category; package errors use the constants above.
+	// Caller-supplied codes are rendered verbatim.
+	Code ErrorCode
+	// Cause retains the underlying error for errors.Is/As. Default formatting
+	// omits its text; logging an extracted cause may disclose source data.
+	Cause error
+	// Candidates contains official language IDs for vocabulary ambiguity,
+	// before checksum selection. The slice is caller-mutable and need not be
+	// set for other codes.
 	Candidates []Language
 }
     Error never contains mnemonic, entropy, passphrase, or seed material.
 
 func (e *Error) Error() string
+    Error formats only the operation and Code, never the wrapped Cause.
 
 func (e *Error) Format(state fmt.State, _ rune)
     Format prevents wrapped diagnostics from appearing in debug output.
@@ -138,6 +195,7 @@ func (e *Error) MarshalText() ([]byte, error)
     MarshalText omits wrapped diagnostics from encoded output.
 
 func (e *Error) Unwrap() error
+    Unwrap returns Cause without sanitizing it for logging or encoding.
 
 type ErrorCode string
     ErrorCode identifies a mnemonic operation failure.
@@ -199,20 +257,31 @@ func Languages() []Language
 type Mnemonic struct {
 	// Has unexported fields.
 }
-    Mnemonic is an immutable validated BIP-39 mnemonic.
+    Mnemonic is an immutable validated BIP-39 mnemonic, safe for concurrent
+    reads. The zero value is invalid for Seed. Private entropy remains stored
+    for the value's lifetime; clearing an Entropy copy does not wipe this
+    retained state.
 
 func FromEntropy(entropy []byte, language Language) (Mnemonic, error)
-    FromEntropy creates a mnemonic from one of the official entropy sizes.
+    FromEntropy copies entropy and encodes 16, 20, 24, 28 or 32 bytes plus their
+    SHA-256 checksum into an official list. It does not measure the input's
+    random quality. The caller must not modify entropy during the call.
 
 func Generate(ctx context.Context, entropyBits int, language Language, selector *keyphrase.Selector) (Mnemonic, error)
-    Generate creates fresh entropy and its corresponding mnemonic.
+    Generate fills fresh entropy and creates its corresponding mnemonic. It
+    consumes source bytes before language loading/validation, so an unsupported
+    language can fail after a read without returning a mnemonic.
 
 func Parse(phrase string) (Mnemonic, error)
     Parse detects the official language and validates the checksum. Vocabulary
-    shared by multiple lists is reported as ambiguity instead of guessed.
+    shared by multiple lists is reported as ambiguity instead of guessed,
+    before trying checksums. Input must contain 1..65536 bytes; NFKD and Unicode
+    Fields normalize spelling/whitespace, without case folding.
 
 func ParseLanguage(phrase string, language Language) (Mnemonic, error)
-    ParseLanguage validates phrase against an explicitly selected language.
+    ParseLanguage validates phrase against an explicitly selected language using
+    Parse's NFKD/whitespace and byte-size rules. It checks the BIP-39 checksum;
+    checksum validity does not establish a mnemonic's source entropy quality.
 
 func (m Mnemonic) Entropy() keyphrase.Secret
     Entropy returns a caller-owned copy of the validated source entropy.
@@ -252,7 +321,11 @@ var ErrInvalidSample = errors.New("keyphrasetest: invalid statistical sample")
 FUNCTIONS
 
 func ChiSquared(counts []uint64) (float64, error)
-    ChiSquared returns Pearson's statistic against equal expected counts.
+    ChiSquared returns Pearson's statistic against equal expected counts,
+    not a p-value or randomness certification. At least two bins and a nonzero
+    total are required. The caller must keep the total representable by uint64;
+    this helper does not check sum overflow. Floating-point arithmetic is
+    approximate.
 
 
 TYPES
@@ -267,29 +340,40 @@ func NewCounterSource() *CounterSource
     NewCounterSource creates a source beginning with byte zero.
 
 func (s *CounterSource) ReadContext(ctx context.Context, destination []byte) (int, error)
-    ReadContext implements keyphrase.Source.
+    ReadContext emits consecutive cyclic bytes under a mutex. Context is checked
+    before locking, not during the write or after waiting for the lock.
 
 type Source struct {
 	// Has unexported fields.
 }
-    Source is a finite, concurrency-safe deterministic byte source.
+    Source is a finite, concurrency-safe deterministic byte source. The zero
+    value is exhausted; it is not suitable for generating secrets. A mutex owns
+    offset.
 
 func NewSource(data []byte) *Source
     NewSource copies data into a deterministic source.
 
 func (s *Source) ReadContext(ctx context.Context, destination []byte) (int, error)
-    ReadContext implements keyphrase.Source.
+    ReadContext consumes finite data under a mutex. It returns io.EOF when
+    exhausted and io.ErrUnexpectedEOF with partial bytes on a short final read.
+    Context is checked before locking, not after a lock wait.
 
 package passphrase // import "github.com/faustbrian/go-keyphrase/v2/passphrase"
 
 Package passphrase generates and validates uniformly selected word-list
-passphrases with optional independently generated password affixes.
+passphrases with optional independently generated password affixes. Uniform
+selection assumes uniform independent source bytes. Parsing validates policy and
+representation, not that the supplied phrase was randomly generated.
 
 TYPES
 
 type Affix struct {
+	// Separator is nonempty valid UTF-8, at most 64 bytes; none of its code
+	// points may occur in Policy.Alphabet.
 	Separator string
-	Policy    password.Policy
+	// Policy supplies a separately sampled Unicode password distribution. Do
+	// not mutate its slices during a call.
+	Policy password.Policy
 }
     Affix is an independently generated password separated from the word phrase
     by Separator.
@@ -306,21 +390,32 @@ const (
 	Upper
 )
 type Distribution struct {
+	// Outcomes is an owned exact count: listSize^Words times the counts of
+	// configured affixes. The caller may mutate it.
 	Outcomes *big.Int
-	Bits     float64
+	// Bits estimates log2(Outcomes) from its leading at most 53 bits plus a
+	// shift; it is not an exact logarithm or strength score.
+	Bits float64
 }
     Distribution describes the exact number of possible outputs.
 
 func Analyze(policy Policy) (Distribution, error)
-    Analyze validates policy and returns its exact output count and entropy.
+    Analyze validates policy and returns its exact output count and approximate
+    base-2 logarithm. Counts assume independent word/affix draws; they do not
+    certify entropy from a caller-supplied randomness source.
 
 type Error struct {
-	Code  ErrorCode
+	// Code identifies the category; package errors use the constants above.
+	// Caller-supplied codes are rendered verbatim.
+	Code ErrorCode
+	// Cause retains the underlying error for errors.Is/As. Default formatting
+	// omits its text; logging an extracted cause may disclose source data.
 	Cause error
 }
     Error omits phrase contents and generated secret material.
 
 func (e *Error) Error() string
+    Error formats only the operation and Code, never the wrapped Cause.
 
 func (e *Error) Format(state fmt.State, _ rune)
     Format prevents wrapped diagnostics from appearing in debug output.
@@ -329,6 +424,7 @@ func (e *Error) MarshalText() ([]byte, error)
     MarshalText omits wrapped diagnostics from encoded output.
 
 func (e *Error) Unwrap() error
+    Unwrap returns Cause without sanitizing it for logging or encoding.
 
 type ErrorCode string
     ErrorCode identifies a passphrase policy, parsing, or generation failure.
@@ -354,7 +450,9 @@ const (
 type Generator struct {
 	// Has unexported fields.
 }
-    Generator generates passphrases from a shared unbiased selector.
+    Generator generates passphrases from a shared selector. It adds no lock;
+    concurrent use is safe only when the selector's source is concurrency-safe.
+    Policy/affix slices and pointers must remain stable during each call.
 
 func DefaultGenerator() *Generator
     DefaultGenerator returns a generator backed by crypto/rand.
@@ -364,18 +462,28 @@ func NewGenerator(selector *keyphrase.Selector) (*Generator, error)
 
 func (g *Generator) Generate(ctx context.Context, policy Policy) (keyphrase.Secret, error)
     Generate returns a complete caller-owned UTF-8 buffer and never returns a
-    partial phrase on failure.
+    partial phrase on failure. Source reads observe context; policy preparation
+    and final assembly do not check it. No caller-owned policy storage is
+    retained.
 
 type Parsed struct {
+	// Prefix owns copied prefix bytes, or is nil if no prefix is configured;
+	// clear it when no longer needed.
 	Prefix keyphrase.Secret
-	Words  []string
+	// Words owns its slice of exact transformed list strings. Strings and
+	// copies cannot be wiped through the byte-buffer API.
+	Words []string
+	// Suffix owns copied suffix bytes, or is nil if no suffix is configured;
+	// clear it when no longer needed.
 	Suffix keyphrase.Secret
 }
     Parsed contains caller-owned affix buffers and transformed list words.
 
 func Parse(encoded []byte, policy Policy) (Parsed, error)
     Parse validates and separates a phrase without treating entropy as a
-    password-strength assertion.
+    password-strength assertion. It copies affix bytes and the word slice,
+    uses exact policy separators/transformed entries, and rejects invalid UTF-8
+    or input above 131199 bytes. It does not normalize or case-fold input words.
 
 func (Parsed) Format(state fmt.State, _ rune)
     Format prevents parsed phrase disclosure through formatting verbs.
@@ -387,12 +495,27 @@ func (Parsed) MarshalText() ([]byte, error)
     MarshalText prevents parsed phrase disclosure through standard encoders.
 
 type Policy struct {
-	WordList           *wordlist.List
-	Words              int
-	Separator          string
-	Casing             Casing
-	Prefix             *Affix
-	Suffix             *Affix
+	// WordList is a nonnil immutable list, with at most 32768 entries. It is
+	// shared, not cloned.
+	WordList *wordlist.List
+	// Words is the number of independently selected words with replacement,
+	// from 2 through 128; repeated words are permitted.
+	Words int
+	// Separator is nonempty valid UTF-8, at most 64 bytes, absent as a
+	// substring of transformed list entries. Parsing uses it exactly.
+	Separator string
+	// Casing transforms each entry without changing selection count;
+	// transformations that collapse entries are rejected.
+	Casing Casing
+	// Prefix optionally adds an independently sampled affix before the words;
+	// the pointed configuration must not change during a call.
+	Prefix *Affix
+	// Suffix optionally adds an independently sampled affix after the words;
+	// the pointed configuration must not change during a call.
+	Suffix *Affix
+	// MinimumEntropyBits is a finite nonnegative floor compared with
+	// approximate Bits in Analyze, generation and Parse. It does not
+	// authenticate a phrase's random origin.
 	MinimumEntropyBits float64
 }
     Policy defines a passphrase distribution.
@@ -400,59 +523,94 @@ type Policy struct {
 package password // import "github.com/faustbrian/go-keyphrase/v2/password"
 
 Package password generates uniformly distributed passwords under explicit
-character and required-class policies.
+character and required-class policies, assuming uniform independent source
+bytes. Unicode policies preserve code points without normalizing complete
+outputs; downstream normalization can change the counted distribution.
 
 FUNCTIONS
 
 func Validate(policy Policy, encoded []byte) error
     Validate reports whether encoded is a complete UTF-8 password satisfying
-    policy. The returned error never includes encoded.
+    policy. It validates the floor's form but does not compare the distribution
+    count against MinimumEntropyBits; use Analyze for that admission check.
+    The returned error never includes encoded. No random-origin or strength
+    claim is made by accepting a caller-supplied value.
 
 
 TYPES
 
 type ByteClass struct {
-	Name  string
+	// Name must be nonempty and labels this requirement.
+	Name string
+	// Bytes is a nonempty duplicate-free set from the original alphabet; at
+	// least one byte must survive exclusions. Do not mutate it during a call.
 	Bytes []byte
 }
     ByteClass is a required set in a byte-alphabet policy.
 
 type BytePolicy struct {
-	Length             int
-	Alphabet           []byte
-	Required           []ByteClass
-	Excluded           []byte
+	// Length is the positive output byte count, at most 1024.
+	Length int
+	// Alphabet contains ordered distinct bytes, at most 256; zero and non-UTF-8
+	// values are allowed. Do not mutate it during a call.
+	Alphabet []byte
+	// Required contains up to 16 possibly overlapping required sets, satisfied
+	// at least once each. Do not mutate it or its Bytes slices during a call.
+	Required []ByteClass
+	// Excluded removes exact byte values before counting; it must have no
+	// duplicates and must not be modified during a call.
+	Excluded []byte
+	// MinimumEntropyBits is a finite nonnegative floor compared with
+	// approximate Bits by AnalyzeBytes and generation, not a source-quality
+	// measurement.
 	MinimumEntropyBits float64
 }
-    BytePolicy defines a distribution over arbitrary byte values.
+    BytePolicy defines a distribution over arbitrary byte values, without
+    Unicode normalization or text encoding. Its slices must remain stable during
+    a call.
 
 type Class struct {
-	Name       string
+	// Name must be nonempty; it labels the requirement, not a unique class
+	// identity.
+	Name string
+	// Characters is a nonempty duplicate/NFKD-collision-free UTF-8 set drawn
+	// from the original alphabet. At least one member must survive exclusions.
 	Characters string
 }
     Class is a required set of characters. Classes may overlap.
 
 type Distribution struct {
+	// Outcomes is an independently owned exact big.Int count the caller may
+	// mutate.
 	Outcomes *big.Int
-	Bits     float64
+	// Bits estimates log2(Outcomes) using its leading at most 53 bits plus a
+	// shift; floating-point rounding is not an exact entropy-floor proof.
+	Bits float64
 }
     Distribution describes the exact number of possible outputs and its base-2
-    logarithm. Outcomes is an owned value and may be modified by the caller.
+    logarithm estimate. Outcomes is owned and may be modified by the caller.
 
 func Analyze(policy Policy) (Distribution, error)
-    Analyze validates policy and reports its exact constrained distribution.
+    Analyze validates policy, reports its exact constrained outcome count and
+    compares MinimumEntropyBits with the floating-point log2 estimate. It does
+    not measure the randomness source or validate a particular password.
 
 func AnalyzeBytes(policy BytePolicy) (Distribution, error)
     AnalyzeBytes validates policy and reports its exact constrained
     distribution.
 
 type Error struct {
-	Code  ErrorCode
+	// Code identifies the category; package errors use the constants above.
+	// Caller-supplied codes are rendered verbatim.
+	Code ErrorCode
+	// Cause retains the underlying error for errors.Is/As. Default formatting
+	// omits its text; logging an extracted cause may disclose source data.
 	Cause error
 }
     Error deliberately excludes policy symbols and generated secret material.
 
 func (e *Error) Error() string
+    Error formats only the operation and Code, never the wrapped Cause.
 
 func (e *Error) Format(state fmt.State, _ rune)
     Format prevents wrapped diagnostics from appearing in debug output.
@@ -461,6 +619,7 @@ func (e *Error) MarshalText() ([]byte, error)
     MarshalText omits wrapped diagnostics from encoded output.
 
 func (e *Error) Unwrap() error
+    Unwrap returns Cause without sanitizing it for logging or encoding.
 
 type ErrorCode string
     ErrorCode identifies a password policy or generation failure.
@@ -507,24 +666,41 @@ func (g *Generator) Generate(ctx context.Context, policy Policy) (keyphrase.Secr
     Generate returns a caller-owned UTF-8 buffer. No partial secret is returned
     on failure. Callers may clear the buffer after use as a best-effort measure,
     but Go cannot guarantee complete erasure of compiler and runtime copies.
+    Policy preparation and unranking do not check cancellation; sampling does.
+    The caller must keep policy slices stable until the call returns.
 
 func (g *Generator) GenerateBytes(ctx context.Context, policy BytePolicy) (keyphrase.Secret, error)
     GenerateBytes returns a complete caller-owned byte password.
 
 func (g *Generator) GenerateBytesInto(ctx context.Context, destination []byte, policy BytePolicy) (int, error)
     GenerateBytesInto fills destination only when it can hold the complete
-    fixed-length output.
+    fixed-length output. After checking the generator, it rejects a short
+    buffer before policy validation or sampling. Other errors leave destination
+    unchanged; bytes after the returned count are untouched.
 
 func (g *Generator) GenerateInto(ctx context.Context, destination []byte, policy Policy) (int, error)
     GenerateInto copies a complete generated password into destination.
     It leaves destination unchanged when generation fails or the buffer is too
-    small.
+    small. A short buffer is detected after sampling, so it can consume source
+    bytes even though destination is unchanged. Bytes after the returned count
+    are not touched.
 
 type Policy struct {
-	Length             int
-	Alphabet           string
-	Required           []Class
-	Excluded           string
+	// Length is the positive output code-point count, at most 1024; it is not a
+	// grapheme or UTF-8 byte count.
+	Length int
+	// Alphabet is ordered UTF-8 with unique code points and no per-symbol NFKD
+	// collisions, at most 4096 code points/16384 bytes.
+	Alphabet string
+	// Required contains up to 16 classes, each satisfied at least once; overlap
+	// is allowed. Its slice must not be modified during a call.
+	Required []Class
+	// Excluded removes exact code points before counting/generation; it is not
+	// a normalization or case-folding rule.
+	Excluded string
+	// MinimumEntropyBits is a finite nonnegative floor checked against
+	// approximate Bits by Analyze and generation. Validate checks its form but
+	// not whether the count meets it.
 	MinimumEntropyBits float64
 }
     Policy defines a Unicode password distribution. Length is measured in
@@ -532,7 +708,10 @@ type Policy struct {
 
 package wordlist // import "github.com/faustbrian/go-keyphrase/v2/wordlist"
 
-Package wordlist validates and exposes immutable cryptographic word lists.
+Package wordlist validates and exposes immutable word lists with explicit
+provenance metadata. Validation checks entries and checksum consistency,
+not publisher authority or dictionary suitability for a threat model. Raw words
+and order are preserved; normalization checks do not rewrite stored entries.
 
 FUNCTIONS
 
@@ -543,11 +722,14 @@ func Checksum(words []string) string
 TYPES
 
 type Error struct {
+	// Code identifies the category; package errors use the constants above.
+	// Caller-supplied values are rendered verbatim.
 	Code ErrorCode
 }
     Error intentionally excludes words and other potentially sensitive input.
 
 func (e *Error) Error() string
+    Error formats the validation category without including list entries.
 
 type ErrorCode string
     ErrorCode identifies a word-list validation failure.
@@ -577,13 +759,20 @@ const (
 type List struct {
 	// Has unexported fields.
 }
-    List is an immutable validated word list.
+    List is an immutable validated word list, safe for concurrent read-only use.
+    It must come from New or a validated embedded loader; its zero value does
+    not satisfy list-construction guarantees. Methods require a nonnil receiver.
 
 func New(metadata Metadata, words []string, options ...Option) (*List, error)
-    New validates words and returns an immutable copy.
+    New validates words and returns an immutable copy of the slice. It admits
+    1..65536 entries of at most 1024 UTF-8 bytes each, rejecting whitespace,
+    controls, exact duplicates and NFKD collisions without rewriting raw
+    entries. Metadata strings are copied by value; SourceSHA256 is only
+    shape-checked. Callers must not modify the input slice during validation.
 
 func (l *List) Index(word string) (int, bool)
-    Index returns the exact entry index.
+    Index returns the exact raw entry index without normalization or case
+    folding.
 
 func (l *List) Len() int
     Len returns the number of entries.
@@ -598,14 +787,27 @@ func (l *List) Words() []string
     Words returns a copy of all entries.
 
 type Metadata struct {
-	ID            string
-	Language      string
-	Source        string
-	Version       string
-	License       string
+	// ID is the nonempty caller-selected identity, not an authenticated
+	// registry entry.
+	ID string
+	// Language is a nonempty descriptive language label, not validated against
+	// a registry.
+	Language string
+	// Source records a nonempty source location; New does not fetch it.
+	Source string
+	// Version records a nonempty source version or revision without verifying
+	// it.
+	Version string
+	// License is a nonempty provenance label, not a license compliance verdict.
+	License string
+	// ExpectedWords must equal the supplied entry count.
 	ExpectedWords int
-	SHA256        string
-	SourceSHA256  string
+	// SHA256 is the hex SHA-256 of raw entries with a newline after each;
+	// matching is case-insensitive and preserves entry order.
+	SHA256 string
+	// SourceSHA256 is the hex SHA-256 claimed for original source bytes. New
+	// checks its shape, not those bytes; trusted provenance is separate.
+	SourceSHA256 string
 }
     Metadata pins provenance and integrity for a list.
 
@@ -617,12 +819,16 @@ func WithNFKD() Option
 
 func WithUniquePrefix(length int) Option
     WithUniquePrefix rejects entries sharing the first length Unicode code
-    points. It is useful for formats that permit abbreviated words.
+    points after NFC display normalization, not raw UTF-8 byte prefixes.
+    Shorter entries use their whole normalized form. It checks uniqueness;
+    Index does not accept abbreviations.
 
 package eff // import "github.com/faustbrian/go-keyphrase/v2/wordlist/eff"
 
-Package eff embeds the Electronic Frontier Foundation diceware word lists with
-pinned source and integrity metadata.
+Package eff embeds the Electronic Frontier Foundation diceware word lists
+with pinned source and integrity metadata. Embedded data is the word column in
+original order, not the original indexed source rows. Each loader memoizes its
+immutable list or failure; no network refresh or retry is performed.
 
 FUNCTIONS
 

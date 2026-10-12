@@ -1,5 +1,7 @@
 // Package password generates uniformly distributed passwords under explicit
-// character and required-class policies.
+// character and required-class policies, assuming uniform independent source
+// bytes. Unicode policies preserve code points without normalizing complete
+// outputs; downstream normalization can change the counted distribution.
 package password
 
 import (
@@ -57,14 +59,20 @@ const (
 
 // Error deliberately excludes policy symbols and generated secret material.
 type Error struct {
-	Code  ErrorCode
+	// Code identifies the category; package errors use the constants above.
+	// Caller-supplied codes are rendered verbatim.
+	Code ErrorCode
+	// Cause retains the underlying error for errors.Is/As. Default formatting
+	// omits its text; logging an extracted cause may disclose source data.
 	Cause error
 }
 
+// Error formats only the operation and Code, never the wrapped Cause.
 func (e *Error) Error() string {
 	return fmt.Sprintf("password: operation failed (%s)", e.Code)
 }
 
+// Unwrap returns Cause without sanitizing it for logging or encoding.
 func (e *Error) Unwrap() error {
 	return e.Cause
 }
@@ -81,25 +89,44 @@ func (e *Error) MarshalText() ([]byte, error) {
 
 // Class is a required set of characters. Classes may overlap.
 type Class struct {
-	Name       string
+	// Name must be nonempty; it labels the requirement, not a unique class
+	// identity.
+	Name string
+	// Characters is a nonempty duplicate/NFKD-collision-free UTF-8 set drawn
+	// from the original alphabet. At least one member must survive exclusions.
 	Characters string
 }
 
 // Policy defines a Unicode password distribution. Length is measured in
 // Unicode code points, not encoded bytes.
 type Policy struct {
-	Length             int
-	Alphabet           string
-	Required           []Class
-	Excluded           string
+	// Length is the positive output code-point count, at most 1024; it is not a
+	// grapheme or UTF-8 byte count.
+	Length int
+	// Alphabet is ordered UTF-8 with unique code points and no per-symbol NFKD
+	// collisions, at most 4096 code points/16384 bytes.
+	Alphabet string
+	// Required contains up to 16 classes, each satisfied at least once; overlap
+	// is allowed. Its slice must not be modified during a call.
+	Required []Class
+	// Excluded removes exact code points before counting/generation; it is not
+	// a normalization or case-folding rule.
+	Excluded string
+	// MinimumEntropyBits is a finite nonnegative floor checked against
+	// approximate Bits by Analyze and generation. Validate checks its form but
+	// not whether the count meets it.
 	MinimumEntropyBits float64
 }
 
 // Distribution describes the exact number of possible outputs and its base-2
-// logarithm. Outcomes is an owned value and may be modified by the caller.
+// logarithm estimate. Outcomes is owned and may be modified by the caller.
 type Distribution struct {
+	// Outcomes is an independently owned exact big.Int count the caller may
+	// mutate.
 	Outcomes *big.Int
-	Bits     float64
+	// Bits estimates log2(Outcomes) using its leading at most 53 bits plus a
+	// shift; floating-point rounding is not an exact entropy-floor proof.
+	Bits float64
 }
 
 // Generator is safe for concurrent use when its randomness source is safe for
@@ -129,7 +156,9 @@ func DefaultGenerator() *Generator {
 	return &Generator{selector: keyphrase.DefaultSelector()}
 }
 
-// Analyze validates policy and reports its exact constrained distribution.
+// Analyze validates policy, reports its exact constrained outcome count and
+// compares MinimumEntropyBits with the floating-point log2 estimate. It does
+// not measure the randomness source or validate a particular password.
 func Analyze(policy Policy) (Distribution, error) {
 	prepared, err := prepare(policy)
 	if err != nil {
@@ -146,7 +175,10 @@ func Analyze(policy Policy) (Distribution, error) {
 }
 
 // Validate reports whether encoded is a complete UTF-8 password satisfying
-// policy. The returned error never includes encoded.
+// policy. It validates the floor's form but does not compare the distribution
+// count against MinimumEntropyBits; use Analyze for that admission check. The
+// returned error never includes encoded. No random-origin or strength claim is
+// made by accepting a caller-supplied value.
 func Validate(policy Policy, encoded []byte) error {
 	prepared, err := prepare(policy)
 	if err != nil {
@@ -177,6 +209,8 @@ func Validate(policy Policy, encoded []byte) error {
 // Generate returns a caller-owned UTF-8 buffer. No partial secret is returned
 // on failure. Callers may clear the buffer after use as a best-effort measure,
 // but Go cannot guarantee complete erasure of compiler and runtime copies.
+// Policy preparation and unranking do not check cancellation; sampling does.
+// The caller must keep policy slices stable until the call returns.
 func (g *Generator) Generate(ctx context.Context, policy Policy) (keyphrase.Secret, error) {
 	if g == nil || g.selector == nil {
 		return nil, &Error{Code: CodeInvalidGenerator}
@@ -231,7 +265,9 @@ func unrankRunes(prepared *preparedPolicy, length int, rank *big.Int) (keyphrase
 
 // GenerateInto copies a complete generated password into destination. It
 // leaves destination unchanged when generation fails or the buffer is too
-// small.
+// small. A short buffer is detected after sampling, so it can consume source
+// bytes even though destination is unchanged. Bytes after the returned count
+// are not touched.
 func (g *Generator) GenerateInto(ctx context.Context, destination []byte, policy Policy) (int, error) {
 	secret, err := g.Generate(ctx, policy)
 	if err != nil {
@@ -381,6 +417,9 @@ func validateOptionalSymbols(value string) ([]rune, map[rune]struct{}, error) {
 	return validateSymbols(value)
 }
 
+// countWays counts completions for every remaining length/observed-class mask.
+// Grouping equal masks preserves each symbol's multiplicity while bounding
+// work; forcing a required symbol into a fixed position would bias outputs.
 func countWays(length, states int, all uint64, masks []uint64) [][]big.Int {
 	ways := make([][]big.Int, length+1)
 	for remaining := range ways {
@@ -421,6 +460,9 @@ func exceedsDynamicOperations(length int, states int, groups int) bool {
 	return int64(length)*int64(states)*int64(groups) > maxDynamicOperations
 }
 
+// log2 uses a leading-bit projection to avoid overflowing float64 conversion
+// for large exact counts. Dropped low bits and floating rounding mean this is
+// an estimate, not an exact arbitrary-precision logarithm.
 func log2(value *big.Int) float64 {
 	bitLength := value.BitLen()
 	shift := max(bitLength-53, 0)

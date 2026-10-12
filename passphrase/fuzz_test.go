@@ -7,6 +7,9 @@ import (
 	"github.com/faustbrian/go-keyphrase/v2/wordlist"
 )
 
+// FuzzParsing bounds input at 128 KiB under a fixed three-word policy.
+// Its successful-parse oracle checks word count, not generation uniformity
+// or arbitrary affix/separator configurations.
 func FuzzParsing(f *testing.F) {
 	words := []string{"alpha", "bravo", "charlie"}
 	checksum := wordlist.Checksum(words)

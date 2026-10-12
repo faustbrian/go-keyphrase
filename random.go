@@ -14,8 +14,12 @@ const maxSampleBits = 1 << 20
 
 // Source supplies cryptographic random bytes and participates in cancellation.
 // Implementations must fill as much of destination as possible and must return
-// promptly after ctx is canceled.
+// promptly after ctx is canceled. Randomness quality is a trusted caller
+// assumption, not verified by this interface or by statistical test helpers.
 type Source interface {
+	// ReadContext reads into caller-provided space. Selector accepts positive
+	// partial progress with nil error, but rejects any nonnil error, even with
+	// a full count. Zero or invalid counts fail without a retry loop.
 	ReadContext(ctx context.Context, destination []byte) (int, error)
 }
 
@@ -29,7 +33,11 @@ func (cryptoSource) ReadContext(ctx context.Context, destination []byte) (int, e
 	return rand.Read(destination)
 }
 
-// Selector performs bounded rejection sampling from a Source.
+// Selector performs bounded rejection sampling from a Source. Uniform and
+// independent source bytes are required for uniform results. Selector retains
+// source without wrapping it in a lock; concurrency safety depends on source.
+// The zero value is invalid. Contexts must be nonnil when an operation checks
+// them; the library cannot interrupt a Source call that ignores cancellation.
 type Selector struct {
 	source      Source
 	maxAttempts int
@@ -38,7 +46,9 @@ type Selector struct {
 // Option configures a Selector.
 type Option func(*Selector) error
 
-// WithMaxAttempts bounds rejected samples from a faulty or hostile source.
+// WithMaxAttempts bounds candidate draws per Index or BigInt operation. It
+// requires a positive count; it does not bound partial-read calls or time spent
+// inside the source. The default is 128 candidate draws.
 func WithMaxAttempts(maxAttempts int) Option {
 	return func(selector *Selector) error {
 		if maxAttempts <= 0 {
@@ -50,7 +60,9 @@ func WithMaxAttempts(maxAttempts int) Option {
 	}
 }
 
-// NewSelector constructs a selector using source.
+// NewSelector constructs a selector retaining source. Options run in order,
+// are not retained, and may return their own errors. Nil source/option values
+// are rejected; custom source quality and sharing remain caller-owned.
 func NewSelector(source Source, options ...Option) (*Selector, error) {
 	if source == nil {
 		return nil, &Error{Code: CodeInvalidSource}
@@ -69,12 +81,16 @@ func NewSelector(source Source, options ...Option) (*Selector, error) {
 	return selector, nil
 }
 
-// DefaultSelector returns a selector backed by crypto/rand.
+// DefaultSelector returns a selector backed by crypto/rand. It checks context
+// before random reads, but cannot interrupt an in-progress crypto/rand read.
 func DefaultSelector() *Selector {
 	return &Selector{source: cryptoSource{}, maxAttempts: defaultMaxAttempts}
 }
 
-// Index returns a uniformly distributed value in [0, upper).
+// Index rejection-samples a value in [0, upper), uniformly if source bytes are
+// uniform and independent. upper must be nonzero. A bound of one returns zero
+// without a read after checking ctx. Cancellation is checked before reads,
+// not again after a successful final read.
 func (s *Selector) Index(ctx context.Context, upper uint64) (uint64, error) {
 	if s == nil || s.source == nil {
 		return 0, &Error{Code: CodeInvalidSource}
@@ -102,6 +118,8 @@ func (s *Selector) Index(ctx context.Context, upper uint64) (uint64, error) {
 			return 0, err
 		}
 
+		// Masking chooses a power-of-two domain; rejecting its excess tail avoids
+		// modulo bias without assuming upper divides the byte domain.
 		candidate := binary.BigEndian.Uint64(buffer[:]) & mask
 		if candidate < upper {
 			return candidate, nil
@@ -112,7 +130,9 @@ func (s *Selector) Index(ctx context.Context, upper uint64) (uint64, error) {
 }
 
 // BigInt returns a uniformly distributed arbitrary-precision value in
-// [0, upper). The returned integer never aliases upper.
+// [0, upper), assuming uniform independent source bytes. upper must be positive
+// and must not be modified during the call. At most 2^20 bits are sampled; the
+// returned integer never aliases upper. A bound of one needs no source read.
 func (s *Selector) BigInt(ctx context.Context, upper *big.Int) (*big.Int, error) {
 	if s == nil || s.source == nil {
 		return nil, &Error{Code: CodeInvalidSource}
@@ -155,7 +175,10 @@ func (s *Selector) BigInt(ctx context.Context, upper *big.Int) (*big.Int, error)
 }
 
 // Fill writes cryptographic random bytes into destination. On failure it
-// clears destination so callers never observe a partial secret.
+// clears destination before returning an error. It allows at most 128 KiB;
+// a valid selector with an empty destination succeeds without reading or
+// checking ctx. Callers must not observe or mutate destination during a call;
+// it can contain partial bytes until an error clears it.
 func (s *Selector) Fill(ctx context.Context, destination []byte) error {
 	if s == nil || s.source == nil {
 		clear(destination)

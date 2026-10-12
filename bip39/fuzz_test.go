@@ -6,6 +6,9 @@ import (
 	"github.com/faustbrian/go-keyphrase/v2/bip39"
 )
 
+// FuzzMnemonicParsing bounds input at 128 KiB (above the parser ceiling).
+// Successful detection must round-trip through explicit-language parsing and
+// canonical rendering; this is not seed derivation or random-origin proof.
 func FuzzMnemonicParsing(f *testing.F) {
 	f.Add("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about")
 	f.Add("一 一 一 一 一 一 一 一 一 一 一 一")

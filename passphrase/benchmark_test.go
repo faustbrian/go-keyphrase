@@ -8,6 +8,8 @@ import (
 	"github.com/faustbrian/go-keyphrase/v2/wordlist/eff"
 )
 
+// BenchmarkGenerateEFFLarge times preparation and selection of six EFF
+// large-list words plus output clearing; list/generator setup precedes b.Loop.
 func BenchmarkGenerateEFFLarge(b *testing.B) {
 	list, err := eff.Large()
 	if err != nil {
@@ -26,6 +28,8 @@ func BenchmarkGenerateEFFLarge(b *testing.B) {
 	}
 }
 
+// BenchmarkParseEFFLarge times policy preparation and exact parsing of a fixed
+// public six-word fixture; lazy list loading is outside b.Loop.
 func BenchmarkParseEFFLarge(b *testing.B) {
 	list, err := eff.Large()
 	if err != nil {

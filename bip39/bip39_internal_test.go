@@ -30,6 +30,8 @@ func (s fillSource) ReadContext(_ context.Context, destination []byte) (int, err
 	return len(destination), nil
 }
 
+// cancelAfterChecks exposes cancellation at a chosen Err call, separating the
+// pre/post-derivation contract from asynchronous scheduling and PBKDF2 runtime.
 type cancelAfterChecks struct {
 	checks int
 }

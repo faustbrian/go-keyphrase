@@ -9,6 +9,9 @@ import (
 	"github.com/faustbrian/go-keyphrase/v2/password"
 )
 
+// BenchmarkGenerateConstrained times full preparation, counting, sampling and
+// unranking for 24 symbols/four classes, including clearing each output.
+// Policy/generator setup is excluded; this is not a prepared-policy cache test.
 func BenchmarkGenerateConstrained(b *testing.B) {
 	policy := password.Policy{
 		Length:   24,
@@ -32,6 +35,8 @@ func BenchmarkGenerateConstrained(b *testing.B) {
 	}
 }
 
+// BenchmarkAnalyzeLargePolicy times exact counting for 1024 symbols and an
+// unconstrained 62-character alphabet; it does not read randomness.
 func BenchmarkAnalyzeLargePolicy(b *testing.B) {
 	policy := password.Policy{Length: 1024, Alphabet: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}
 	for b.Loop() {
@@ -41,6 +46,8 @@ func BenchmarkAnalyzeLargePolicy(b *testing.B) {
 	}
 }
 
+// BenchmarkRejectOversizedPolicy times state-cell admission rejection of a
+// 1024-length/10-class policy; it does not measure successful generation.
 func BenchmarkRejectOversizedPolicy(b *testing.B) {
 	policy := password.Policy{
 		Length:   1024,
@@ -54,6 +61,8 @@ func BenchmarkRejectOversizedPolicy(b *testing.B) {
 	}
 }
 
+// BenchmarkGenerateSourceFailure times preparation plus failure at an exhausted
+// deterministic source. Generator setup is excluded; no secret is produced.
 func BenchmarkGenerateSourceFailure(b *testing.B) {
 	selector, err := keyphrase.NewSelector(keyphrasetest.NewSource(nil))
 	if err != nil {

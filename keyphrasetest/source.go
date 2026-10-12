@@ -14,7 +14,8 @@ import (
 // ErrInvalidSample reports an unusable statistical sample.
 var ErrInvalidSample = errors.New("keyphrasetest: invalid statistical sample")
 
-// Source is a finite, concurrency-safe deterministic byte source.
+// Source is a finite, concurrency-safe deterministic byte source. The zero value
+// is exhausted; it is not suitable for generating secrets. A mutex owns offset.
 type Source struct {
 	mu     sync.Mutex
 	data   []byte
@@ -26,7 +27,9 @@ func NewSource(data []byte) *Source {
 	return &Source{data: append([]byte(nil), data...)}
 }
 
-// ReadContext implements keyphrase.Source.
+// ReadContext consumes finite data under a mutex. It returns io.EOF when
+// exhausted and io.ErrUnexpectedEOF with partial bytes on a short final read.
+// Context is checked before locking, not after a lock wait.
 func (s *Source) ReadContext(ctx context.Context, destination []byte) (int, error) {
 	if err := ctx.Err(); err != nil {
 		return 0, err
@@ -56,7 +59,8 @@ func NewCounterSource() *CounterSource {
 	return &CounterSource{}
 }
 
-// ReadContext implements keyphrase.Source.
+// ReadContext emits consecutive cyclic bytes under a mutex. Context is checked
+// before locking, not during the write or after waiting for the lock.
 func (s *CounterSource) ReadContext(ctx context.Context, destination []byte) (int, error) {
 	if err := ctx.Err(); err != nil {
 		return 0, err
@@ -70,7 +74,10 @@ func (s *CounterSource) ReadContext(ctx context.Context, destination []byte) (in
 	return len(destination), nil
 }
 
-// ChiSquared returns Pearson's statistic against equal expected counts.
+// ChiSquared returns Pearson's statistic against equal expected counts, not a
+// p-value or randomness certification. At least two bins and a nonzero total
+// are required. The caller must keep the total representable by uint64; this
+// helper does not check sum overflow. Floating-point arithmetic is approximate.
 func ChiSquared(counts []uint64) (float64, error) {
 	if len(counts) < 2 {
 		return math.NaN(), ErrInvalidSample

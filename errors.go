@@ -33,14 +33,20 @@ const (
 // underlying cause may inspect it with errors.Is or errors.As, but should not
 // log arbitrary source errors without reviewing their disclosure behavior.
 type Error struct {
-	Code  ErrorCode
+	// Code identifies the category; package errors use the constants above.
+	// Caller-supplied codes are rendered verbatim.
+	Code ErrorCode
+	// Cause retains the underlying error for errors.Is/As. Default formatting
+	// omits its text; logging an extracted cause may disclose source data.
 	Cause error
 }
 
+// Error formats only the operation and Code, never the wrapped Cause.
 func (e *Error) Error() string {
 	return fmt.Sprintf("keyphrase: generation failed (%s)", e.Code)
 }
 
+// Unwrap returns Cause without sanitizing it for logging or encoding.
 func (e *Error) Unwrap() error {
 	return e.Cause
 }

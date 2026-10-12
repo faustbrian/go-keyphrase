@@ -11,6 +11,8 @@ import (
 func TestAnalyzeBoundsDynamicProgrammingWork(t *testing.T) {
 	t.Parallel()
 
+	// Seven overlapping membership bits create 128 distinct masks, exercising
+	// the operation budget independently of the state-cell ceiling.
 	symbols := make([]rune, 128)
 	for index := range symbols {
 		symbols[index] = rune(0x1000 + index)

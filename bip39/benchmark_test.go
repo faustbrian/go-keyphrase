@@ -7,6 +7,8 @@ import (
 	"github.com/faustbrian/go-keyphrase/v2/bip39"
 )
 
+// BenchmarkFromEntropy times English encoding of a public all-zero 32-byte
+// fixture, not random generation; lazy list initialization may precede warm use.
 func BenchmarkFromEntropy(b *testing.B) {
 	entropy := make([]byte, 32)
 	for b.Loop() {
@@ -16,6 +18,8 @@ func BenchmarkFromEntropy(b *testing.B) {
 	}
 }
 
+// BenchmarkParseAndNormalize times explicit Japanese parsing of a public
+// 12-word fixture, including normalization and checksum validation.
 func BenchmarkParseAndNormalize(b *testing.B) {
 	phrase := "あいこくしん　あいこくしん　あいこくしん　あいこくしん　あいこくしん　あいこくしん　あいこくしん　あいこくしん　あいこくしん　あいこくしん　あいこくしん　あおぞら"
 	for b.Loop() {
@@ -25,6 +29,8 @@ func BenchmarkParseAndNormalize(b *testing.B) {
 	}
 }
 
+// BenchmarkSeedDerivation times normalization, PBKDF2 and output clearing for
+// a public 12-word English fixture; mnemonic construction is outside b.Loop.
 func BenchmarkSeedDerivation(b *testing.B) {
 	mnemonic, err := bip39.FromEntropy(make([]byte, 16), bip39.English)
 	if err != nil {

@@ -5,6 +5,14 @@ Versioning after its first stable release.
 
 ## Unreleased
 
+### Documentation
+
+- Clarify source-quality assumptions, approximate entropy bits versus exact
+  outcome counts, password validation versus entropy-floor admission, and
+  raw/NFKD/NFC dictionary identities. Explain cooperative cancellation,
+  mutable secret aliases, retained mnemonic entropy and provenance checks
+  without changing cryptography, dictionary bytes or the `/v2` API.
+
 ## 2.0.2 - 2026-10-06
 
 ### Fixed

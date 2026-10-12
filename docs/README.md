@@ -33,6 +33,7 @@ platform-specific source files or external runtime backend. See the
 ## Maintainers
 
 - [Testing and release gates](testing.md)
+- [Source documentation audit](source-documentation-audit.md)
 
 ## Project and release information
 

@@ -9,8 +9,8 @@ and omission of generated values from library errors.
 
 The default random source is `crypto/rand`. Injected sources are trusted to
 provide cryptographic bytes, obey cancellation, and be concurrency-safe when
-shared. Rejection limits prevent a malicious source from forcing unbounded
-sampling. A deterministic or biased injected source intentionally weakens the
+shared. Rejection limits bound candidate draws, not time spent inside a
+source read that ignores cancellation. A deterministic or biased source weakens the
 result and is suitable only for tests or explicitly reviewed hardware adapters.
 
 ## In scope

@@ -7,6 +7,9 @@ import (
 	"github.com/faustbrian/go-keyphrase/v2/wordlist"
 )
 
+// FuzzValidation splits at most 16 KiB into raw words and supplies matching
+// synthetic metadata. Accepted lists preserve count and checksum, not verified
+// publisher provenance or cryptographic quality.
 func FuzzValidation(f *testing.F) {
 	f.Add("alpha\nbravo\ncharlie")
 	f.Add("é\ne\u0301")

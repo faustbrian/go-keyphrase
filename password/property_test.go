@@ -84,6 +84,8 @@ func TestAnalyzeMatchesBruteForceProperties(t *testing.T) {
 	}
 }
 
+// bruteForceOutcomes enumerates small complete sequences without production
+// dynamic programming or mask grouping, providing an independent count oracle.
 func bruteForceOutcomes(policy password.Policy) *big.Int {
 	excluded := make(map[rune]struct{})
 	for _, symbol := range policy.Excluded {
