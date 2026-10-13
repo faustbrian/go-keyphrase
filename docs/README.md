@@ -30,6 +30,7 @@ platform-specific source files or external runtime backend. See the
 ## Formats and data
 
 - [BIP-39 behavior](bip39.md)
+- [BIP-39 vector provenance and import](bip39-vectors.md)
 - [Word-list provenance](wordlists.md)
 
 ## Maintainers

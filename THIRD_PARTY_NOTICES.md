@@ -18,3 +18,14 @@ removes dice index columns and preserves the published word order.
 `github.com/tyler-smith/go-bip39` is MIT licensed and is used only by tests as
 an independently maintained comparison implementation. Its transitive notices
 are reviewed by the repository license gate.
+
+## python-mnemonic interoperability vectors
+
+`bip39/testdata/vectors.json` is an exact snapshot from Trezor's
+`python-mnemonic` repository at revision
+`b57a5ad77a981e743f4167ab2f7927a55c1e82a8`.
+Copyright (c) 2013-2016 Pavol Rusnak; licensed under the MIT License.
+The complete upstream notice is retained in
+[bip39/testdata/python-mnemonic-LICENSE](bip39/testdata/python-mnemonic-LICENSE).
+The [import guide](docs/bip39-vectors.md) records source locks and the
+remaining historical attribution uncertainty.
