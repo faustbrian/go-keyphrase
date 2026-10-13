@@ -1,5 +1,7 @@
 # Policy examples
 
+[Documentation index](README.md)
+
 ## Unicode password
 
 Use `password.Policy` when length means Unicode code points. Every alphabet and
@@ -25,3 +27,5 @@ occur in their alphabets.
 Always call `Analyze` during configuration or startup. Set
 `MinimumEntropyBits` from the application's threat model, not from a generic
 password-strength label.
+
+Continue with [API reference](api.md).

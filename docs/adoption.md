@@ -1,5 +1,7 @@
 # Migration and adoption
 
+[Documentation index](README.md)
+
 ## From v1 of this module
 
 Change module imports to `github.com/faustbrian/go-keyphrase/v2` and its

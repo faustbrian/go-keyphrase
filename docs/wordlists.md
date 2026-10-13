@@ -1,5 +1,7 @@
 # Word-list provenance
 
+[Documentation index](README.md)
+
 Adding or changing an embedded list is a security-sensitive compatibility
 event. Review source ownership, license, normalization, entry count, duplicate
 and prefix behavior, raw-source checksum, transformed checksum, vectors, and
@@ -28,3 +30,5 @@ loading embedded lists through their runtime validators. `wordlist.New`
 checks the transformed checksum and only the shape of `SourceSHA256`; it does
 not download and authenticate the original source. Source refreshes must be
 explicit review changes; builds do not fetch mutable network content.
+
+Continue with [API reference](api.md).

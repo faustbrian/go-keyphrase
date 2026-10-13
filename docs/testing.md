@@ -1,5 +1,7 @@
 # Testing and release gates
 
+[Documentation index](README.md)
+
 Start standalone development with `go test ./...`: deterministic tests, native
 fuzz seeds and saved corpus regressions do not need sibling checkouts or an
 ecosystem ledger. With the checksum-pinned public verifier, `make check` and

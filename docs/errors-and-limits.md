@@ -1,5 +1,7 @@
 # Errors and resource limits
 
+[Documentation index](README.md)
+
 Each package exposes a typed `Error` and stable `ErrorCode` values. Use
 `errors.As` for package failures and `errors.Is` for wrapped cancellation or
 source causes. Library error strings identify only the operation and code; they
@@ -37,3 +39,5 @@ FIPS-only rejection of a short BIP-39 salt, without returning a partial seed.
   64-byte separators, and 131,199 output bytes; and
 - BIP-39 parsing allows 65,536 encoded mnemonic bytes and 1,048,576
   passphrase bytes, while derivation always uses the specified 2,048 rounds.
+
+Continue with [API reference](api.md).

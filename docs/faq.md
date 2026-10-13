@@ -1,5 +1,7 @@
 # FAQ
 
+[Documentation index](README.md)
+
 ## Is entropy a strength guarantee?
 
 No. It is the exact mathematical distribution produced by the configured
@@ -36,3 +38,5 @@ candidate language names.
 
 Only if it is an explicitly reviewed cryptographic hardware integration.
 `keyphrasetest` sources are predictable and must never generate real secrets.
+
+Continue with [API reference](api.md).

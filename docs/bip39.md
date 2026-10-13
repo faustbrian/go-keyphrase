@@ -1,5 +1,7 @@
 # BIP-39 behavior
 
+[Documentation index](README.md)
+
 `bip39` supports 128, 160, 192, 224, and 256 bits of entropy and the resulting
 12, 15, 18, 21, and 24-word mnemonics. It creates and validates checksum bits,
 normalizes mnemonic and passphrase text with NFKD, uses all ten official lists,
@@ -32,3 +34,5 @@ resolve that provenance rather than infer it from the independent comparison.
 BIP-39 is included only for mnemonic and seed interoperability. This module
 does not implement BIP-32, BIP-44, wallets, addresses, private keys,
 transactions, custody, account discovery, or chain-specific behavior.
+
+Continue with [API reference](api.md).

@@ -1,5 +1,7 @@
 # Secret lifetime
 
+[Documentation index](README.md)
+
 Prefer `keyphrase.Secret`, keep ownership narrow, avoid converting results to
 strings, and call `Secret.Clear` as soon as the value is no longer needed. Its
 formatting, structured logging, and standard text/JSON encoding are redacted.
@@ -25,3 +27,5 @@ text/JSON encoding, including formatting of a recovered panic value. A caller
 can still disclose a secret by explicitly converting it to `string` or
 `[]byte`, extracting mnemonic words or entropy, or attaching those values to
 telemetry. Instrumentation boundaries must therefore avoid unwrapping secrets.
+
+Continue with [API reference](api.md).

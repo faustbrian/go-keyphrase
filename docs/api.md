@@ -1,5 +1,7 @@
 # API reference
 
+[Documentation index](README.md)
+
 The Go package documentation is authoritative for signatures. This page maps
 the complete public surface to its intended use.
 
@@ -60,3 +62,5 @@ structured logging, and standard text/JSON encoding of `Mnemonic` are redacted;
 `NewSource` creates a finite deterministic source. `NewCounterSource` exercises
 sampling boundaries. `ChiSquared` calculates an equal-frequency diagnostic;
 it must not be presented as cryptographic certification.
+
+Continue with [Migration and adoption](adoption.md).

@@ -1,5 +1,7 @@
 # Independent cryptographic design review
 
+[Documentation index](README.md)
+
 Status: approved for the reviewed v2 source candidate
 
 Reviewer: Codex, independent read-only reviewer
@@ -40,3 +42,5 @@ The existing `v1.0.0` tag predates this review and is not evidence of its
 completion. The reviewed source is the commit above; later documentation-only
 changes do not expand the reviewed cryptographic scope. A future release still
 requires the applicable source, CI, and release gates.
+
+Continue with [API reference](api.md).

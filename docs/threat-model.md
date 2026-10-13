@@ -1,5 +1,7 @@
 # Threat model
 
+[Documentation index](README.md)
+
 ## Protected properties
 
 The library protects uniform selection from the configured output space,
@@ -48,3 +50,5 @@ policy or BIP-39 requirements change. An in-progress seed derivation cannot be
 interrupted by context cancellation; the application must account for its
 fixed, bounded work and review the latency bound if passphrase or derivation
 limits change.
+
+Continue with [API reference](api.md).

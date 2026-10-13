@@ -1,5 +1,7 @@
 # Performance and operational limits
 
+[Documentation index](README.md)
+
 Keyphrase generation is local and bounded, but it is not constant-cost. This
 repository publishes benchmark entry points rather than a latency or throughput
 guarantee. Measure the relevant policy, randomness source, platform, and Go

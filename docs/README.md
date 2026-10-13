@@ -1,5 +1,7 @@
 # Documentation
 
+[Package README](../README.md)
+
 `keyphrase` generates passwords, EFF-list passphrases, and BIP-39 mnemonics
 from caller-controlled policies and cryptographic randomness.
 
@@ -44,3 +46,8 @@ platform-specific source files or external runtime backend. See the
 - [Changelog](../CHANGELOG.md)
 - [License](../LICENSE)
 - [Third-party notices](../THIRD_PARTY_NOTICES.md)
+
+## Ecosystem navigation
+
+See the [versioned Golib ecosystem index](https://github.com/faustbrian/go-library-tools/blob/v1.8.4/docs/ecosystem/README.md) for package
+selection, explicit ownership, and compatibility guidance.

@@ -1,5 +1,7 @@
 # Entropy interpretation
 
+[Documentation index](README.md)
+
 `Outcomes` is the exact number of distinct byte or code-point sequences the
 configured generator can emit. `Bits` estimates `log2(Outcomes)` from the
 leading at most 53 count bits plus a binary shift. Low-bit truncation and
@@ -23,3 +25,5 @@ floor using that floating-point estimate; it does not choose an appropriate
 floor for the caller's threat model. `password.Validate` checks password
 content but does not compare the output count against that floor; use
 `password.Analyze` for policy admission.
+
+Continue with [API reference](api.md).
