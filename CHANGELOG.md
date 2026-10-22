@@ -13,6 +13,12 @@ Versioning after its first stable release.
   mutable secret aliases, retained mnemonic entropy and provenance checks
   without changing cryptography, dictionary bytes or the `/v2` API.
 
+## 2.0.3 - 2026-10-22
+
+### Changed
+
+- Publish the current source and documentation with a fresh immutable tag.
+
 ## 2.0.2 - 2026-10-06
 
 ### Fixed
